@@ -1,18 +1,14 @@
-﻿FROM mcr.microsoft.com/dotnet/runtime:6.0 AS base
-WORKDIR /app
+﻿# Set the base image as the .NET 6.0 SDK (this includes the runtime)
+FROM mcr.microsoft.com/dotnet/sdk:6.0 as build-env
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
-WORKDIR /src
-COPY ["SilverCommandRefGen/SilverCommandRefGen.csproj", "SilverCommandRefGen/"]
-RUN dotnet restore "SilverCommandRefGen/SilverCommandRefGen.csproj"
-COPY . .
-WORKDIR "/src/SilverCommandRefGen"
-RUN dotnet build "SilverCommandRefGen.csproj" -c Release -o /app/build
+# Copy everything and publish the release (publish implicitly restores and builds)
+COPY . ./
+RUN dotnet publish ./SilverCommandRefGen/SilverCommandRefGen.csproj -c Release -o out --no-self-contained
 
-FROM build AS publish
-RUN dotnet publish "SilverCommandRefGen.csproj" -c Release -o /app/publish
 
-FROM base AS final
-WORKDIR /app
-COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "SilverCommandRefGen.dll"]
+# Relayer the .NET SDK, anew with the build output
+FROM mcr.microsoft.com/dotnet/sdk:6.0
+COPY --from=build-env /out .
+ENTRYPOINT [ "dotnet", "/SilverCommandRefGen.dll" ]
+
+
