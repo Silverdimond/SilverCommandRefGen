@@ -75,8 +75,7 @@ static async ValueTask StartAnalysisAsync(ActionInputs inputs, IHost host)
         var logger = Get<ILoggerFactory>(host).CreateLogger(nameof(StartAnalysisAsync));
         var fileExists = File.Exists(fullPath);
 
-        logger.LogInformation(
-            $"{(fileExists ? "Updating" : "Creating")} {fileName} markdown file with latest code metric data.");
+        logger.LogInformation("{Updating} {FileName} markdown file with latest code metric data.", (fileExists ? "Updating" : "Creating"), fileName);
 
         summary.AppendLine(
             title = $"{(fileExists ? "Updated" : "Created")} {fileName} file, analyzed metrics for {metricData.Count} projects.");
@@ -110,6 +109,8 @@ static async ValueTask StartAnalysisAsync(ActionInputs inputs, IHost host)
             textWriter.WriteLine($"summary-title={title}");
             textWriter.WriteLine($"summary-details={summary}");
         }
+
+        Console.WriteLine(File.ReadAllText(githubOutputFile));
     }
     else
     {
