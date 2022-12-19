@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Globalization;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
@@ -8,6 +9,8 @@ using DotNet.CodeAnalysis;
 using Markdown;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeMetrics;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -555,6 +558,30 @@ sealed class ProjectMetricDataAnalyzer
             var compilation =
                 await project.GetCompilationAsync(cancellation)
                     .ConfigureAwait(false);
+            string TEST_ATTRIBUTE_METADATA_NAME = "DSharpPlus.CommandsNext.BaseCommandModule";
+            var testAttributeType = compilation.GetTypeByMetadataName(TEST_ATTRIBUTE_METADATA_NAME);
+            foreach (var tree in compilation.SyntaxTrees)
+            {
+                var classes = tree.GetRoot().DescendantNodesAndSelf().Where(x => x.IsKind(SyntaxKind.ClassDeclaration));
+                foreach (var c in classes)
+                {
+                    var classDec = (ClassDeclarationSyntax)c;
+                    var bases = classDec.BaseList;
+
+                    if (bases?.Types != null)
+                    {
+                        foreach (var b in bases.Types)
+                        {
+                            var nodeType = compilation.GetSemanticModel(tree).GetTypeInfo(b.Type);
+                            if (nodeType.Type.Equals(testAttributeType))
+                            {
+                                Console.WriteLine(classDec.Identifier.Text);
+                            }
+                        }
+                    }
+                }
+            }
+            
             //TODO ADD NEW FIELDS HERE
             var metricData = await CodeAnalysisMetricData.ComputeAsync(
                     compilation!.Assembly,
