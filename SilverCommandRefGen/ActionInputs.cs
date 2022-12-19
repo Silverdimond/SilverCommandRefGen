@@ -1,6 +1,5 @@
 ﻿using System.Collections.Immutable;
 using System.Globalization;
-using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
@@ -14,7 +13,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace SilverCraft.SilverCommandRefGen;
+namespace SilverCommandRefGen;
 public class ActionInputs
 {
     string _repositoryName = null!;
@@ -53,7 +52,7 @@ public class ActionInputs
         HelpText = "The workspace directory, or repository root directory.")]
     public string WorkspaceDirectory { get; set; } = null!;
 
-    static void ParseAndAssign(string? value, Action<string> assign)
+    static void ParseAndAssign(string? value, Action<string>? assign)
     {
         if (value is { Length: > 0 } && assign is not null)
         {
@@ -111,7 +110,7 @@ static class CodeAnalysisMetricDataExtensions
         builder.AppendLine();
 
         className = className.Contains(".")
-            ? className.Substring(className.IndexOf(".") + 1)
+            ? className.Substring(className.IndexOf(".", StringComparison.Ordinal) + 1)
             : className;
 
         if (classMetric.Symbol is ITypeSymbol typeSymbol &&
@@ -180,11 +179,11 @@ static class CodeAnalysisMetricDataExtensions
                     }
 
                     var classNameOffset = className.Contains(".")
-                        ? className.Substring(className.IndexOf(".")).Length - 1
+                        ? className[className.IndexOf(".", StringComparison.Ordinal)..].Length - 1
                         : className.Length;
 
                     var index = rtrnType.Length + 2 + classNameOffset;
-                    var methodSignature = method.Substring(index);
+                    var methodSignature = method[index..];
                     return $"{accessModifier}{methodSignature}{ToClassifier(member)} {rtrnType}";
                 }
 
@@ -193,8 +192,8 @@ static class CodeAnalysisMetricDataExtensions
                 if (returnType.Match(method) is { Success: true } match)
                 {
                     // 2 is hardcoded for the space and "." characters
-                    var index = method.IndexOf(" ") + 2 + className.Length;
-                    var methodSignature = method.Substring(index);
+                    var index = method.IndexOf(" ", StringComparison.Ordinal) + 2 + className.Length;
+                    var methodSignature = method[index..];
                     return $"{accessModifier}{methodSignature}{ToClassifier(member)} {match.Groups["returnType"]}";
                 }
             }
@@ -330,7 +329,7 @@ static class CodeMetricsReportExtensions
                 foreach (var classMetric in namespaceMetric.Children
                     .OrderBy(md => md.Symbol.Name))
                 {
-                    var (classId, classSymbolName, classLink, namedTypeHighestComplexity) = ToIdAndAnchorPair(classMetric);
+                    var (classId, classSymbolName, _, namedTypeHighestComplexity) = ToIdAndAnchorPair(classMetric);
                     OpenCollapsibleSection(
                         document, classId, classSymbolName, namedTypeHighestComplexity.emoji);
 
@@ -391,14 +390,14 @@ static class CodeMetricsReportExtensions
 
         MarkdownList markdownList = new();
         foreach ((string columnHeader, string defintion)
-            in new (string, string)[]
+            in new[]
             {
-                ("Maintainability index", "Measures ease of code maintenance. ⬆ Higher values are better."),
-                ("Cyclomatic complexity", "Measures the number of branches. ⬇️ Lower values are better."),
-                ("Depth of inheritance", "Measures length of object inheritance hierarchy. ⬇️ Lower values are better."),
-                ("Class coupling", "Measures the number of classes that are referenced. ⬇️ Lower values are better."),
-                ("Lines of source code", "Exact number of lines of source code. ⬇️ Lower values are better."),
-                ("Lines of executable code", "Approximates the lines of executable code. ⬇️ Lower values are better.")
+                ("Maintainability index", "Measures ease of code maintenance. 🧽 ⬆ Higher values are better."),
+                ("Cyclomatic complexity", "Measures the number of branches. 🌱 ⬇️ Lower values are better."),
+                ("Depth of inheritance", "Measures length of object inheritance hierarchy. 🇿 ⬇️ Lower values are better."),
+                ("Class coupling", "Measures the number of classes that are referenced.🇨 🇨 ⬇️ Lower values are better."),
+                ("Lines of source code", "Exact number of lines of source code. 🇱 🇴 🇨 ⬇️ Lower values are better."),
+                ("Lines of executable code", "Approximates the lines of executable code. 🇱 🇴 🇪 🇨 ⬇️ Lower values are better.")
             })
         {
             MarkdownText header = new($"**{columnHeader}**");
@@ -423,7 +422,7 @@ static class CodeMetricsReportExtensions
 
     static void AppendMaintainedByBotMessage(MarkdownDocument document) =>
         document.AppendParagraph(
-            new MarkdownEmphasis("This file is maintained by a bot."));
+            new MarkdownEmphasis("**This file is maintained by a github action.**"));
 
     static MarkdownTableRow ToTableRowFrom(
         CodeAnalysisMetricData metric,
@@ -539,11 +538,11 @@ sealed class ProjectMetricDataAnalyzer
 
         if (File.Exists(path))
         {
-            _logger.LogInformation($"Computing analytics on {path}.");
+            _logger.LogInformation("Computing analytics on {Path}.", path);
         }
         else
         {
-            _logger.LogWarning($"{path} doesn't exist.");
+            _logger.LogWarning("{Path} doesn\'t exist.", path);
             return ImmutableArray<(string, CodeAnalysisMetricData)>.Empty;
         }
 
@@ -559,28 +558,28 @@ sealed class ProjectMetricDataAnalyzer
                 await project.GetCompilationAsync(cancellation)
                     .ConfigureAwait(false);
 
-            foreach (var tree in compilation.SyntaxTrees)
-            {
-                var classes = tree.GetRoot().DescendantNodesAndSelf().Where(x => x.IsKind(SyntaxKind.ClassDeclaration));
-                foreach (var c in classes)
+            if (compilation?.SyntaxTrees != null)
+                foreach (var tree in compilation?.SyntaxTrees)
                 {
-                    var classDec = (ClassDeclarationSyntax)c;
-                    var bases = classDec.BaseList;
-
-                    if (bases?.Types != null)
+                    var classes = tree.GetRoot().DescendantNodesAndSelf()
+                        .Where(x => x.IsKind(SyntaxKind.ClassDeclaration));
+                    foreach (var c in classes)
                     {
+                        var classDec = (ClassDeclarationSyntax)c;
+                        var bases = classDec.BaseList;
+
+                        if (bases?.Types == null) continue;
                         foreach (var b in bases.Types)
                         {
                             var nodeType = compilation.GetSemanticModel(tree).GetTypeInfo(b.Type);
-                            if (nodeType.Type.Name.Contains("BaseCommandModule"))
+                            if (nodeType.Type != null && nodeType.Type.Name.Contains("BaseCommandModule"))
                             {
                                 Console.WriteLine(classDec.Identifier.Text + " command module");
                             }
                         }
                     }
                 }
-            }
-            
+
             //TODO ADD NEW FIELDS HERE
             var metricData = await CodeAnalysisMetricData.ComputeAsync(
                     compilation!.Assembly,

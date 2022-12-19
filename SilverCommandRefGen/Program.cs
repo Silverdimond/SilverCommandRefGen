@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileSystemGlobbing;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using SilverCraft.SilverCommandRefGen;
+using SilverCommandRefGen;
 using static CommandLine.Parser;
 
 
