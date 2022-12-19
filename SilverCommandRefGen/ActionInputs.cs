@@ -572,11 +572,9 @@ sealed class ProjectMetricDataAnalyzer
                         foreach (var b in bases.Types)
                         {
                             var nodeType = compilation.GetSemanticModel(tree).GetTypeInfo(b.Type);
-                            Console.WriteLine(classDec.Identifier.Text);
                             if (nodeType.Type.Name.Contains("BaseCommandModule"))
                             {
-                                Console.WriteLine("command");
-                                Console.WriteLine(nodeType.Type.Name);
+                                Console.WriteLine(classDec.Identifier.Text + " command module");
                             }
                         }
                     }
