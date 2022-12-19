@@ -80,11 +80,6 @@ static async ValueTask StartAnalysisAsync(ActionInputs inputs, IHost host)
         summary.AppendLine(
             title = $"{(fileExists ? "Updated" : "Created")} {fileName} file, analyzed metrics for {metricData.Count} projects.");
 
-        foreach (var (path, _) in metricData)
-        {
-            summary.AppendLine($"- *{path}*");
-        }
-
         var contents = metricData.ToMarkDownBody(inputs);
         await File.WriteAllTextAsync(
             fullPath,
@@ -109,8 +104,6 @@ static async ValueTask StartAnalysisAsync(ActionInputs inputs, IHost host)
             textWriter.WriteLine($"summary-title={title}");
             textWriter.WriteLine($"summary-details={summary}");
         }
-
-        Console.WriteLine(File.ReadAllText(githubOutputFile));
     }
     else
     {

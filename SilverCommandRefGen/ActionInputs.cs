@@ -555,7 +555,7 @@ sealed class ProjectMetricDataAnalyzer
             var compilation =
                 await project.GetCompilationAsync(cancellation)
                     .ConfigureAwait(false);
-
+            //TODO ADD NEW FIELDS HERE
             var metricData = await CodeAnalysisMetricData.ComputeAsync(
                     compilation!.Assembly,
                     new CodeMetricsAnalysisContext(compilation, cancellation))
