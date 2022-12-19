@@ -558,9 +558,6 @@ sealed class ProjectMetricDataAnalyzer
             var compilation =
                 await project.GetCompilationAsync(cancellation)
                     .ConfigureAwait(false);
-            string TEST_ATTRIBUTE_METADATA_NAME = "DSharpPlus.CommandsNext.BaseCommandModule";
-            var testAttributeType = compilation.GetTypeByMetadataName(TEST_ATTRIBUTE_METADATA_NAME);
-            Console.WriteLine(testAttributeType);
 
             foreach (var tree in compilation.SyntaxTrees)
             {
@@ -576,9 +573,10 @@ sealed class ProjectMetricDataAnalyzer
                         {
                             var nodeType = compilation.GetSemanticModel(tree).GetTypeInfo(b.Type);
                             Console.WriteLine(classDec.Identifier.Text);
-                            if (nodeType.Type.Equals(testAttributeType))
+                            if (nodeType.Type.Name.Contains("BaseCommandModule"))
                             {
                                 Console.WriteLine("command");
+                                Console.WriteLine(nodeType.Type.Name);
                             }
                         }
                     }
