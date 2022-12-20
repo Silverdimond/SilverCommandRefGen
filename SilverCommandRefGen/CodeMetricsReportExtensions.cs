@@ -143,10 +143,14 @@ static class CodeMetricsReportExtensions
                 {
                     document.AppendBlockquote(command.Name);
                     document.AppendParagraph(" - ");
-                    foreach (var alias in command.Aliases)
+                    if (command.Aliases != null)
                     {
-                        document.AppendBlockquote(alias);
+                        foreach (var alias in command.Aliases)
+                        {
+                            document.AppendBlockquote(alias);
+                        } 
                     }
+                    document.AppendParagraph(command.Description);
                     document.AppendParagraph($"https://github.com/{actionInputs.Owner}/{actionInputs.Name}/blob/{actionInputs.Branch}{command.Location}");
                 }
             }
