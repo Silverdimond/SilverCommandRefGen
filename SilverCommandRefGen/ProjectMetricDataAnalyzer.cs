@@ -47,7 +47,7 @@ sealed class ProjectMetricDataAnalyzer
             if (compilation?.SyntaxTrees != null)
                 foreach (var tree in compilation?.SyntaxTrees)
                 {
-                    var classes = tree.GetRoot().DescendantNodesAndSelf()
+                    var classes = (await tree.GetRootAsync()).DescendantNodesAndSelf()
                         .Where(x => x.IsKind(SyntaxKind.ClassDeclaration));
                     foreach (var c in classes)
                     {
@@ -58,7 +58,7 @@ sealed class ProjectMetricDataAnalyzer
                         foreach (var b in bases.Types)
                         {
                             var nodeType = compilation.GetSemanticModel(tree).GetTypeInfo(b.Type);
-                            if (nodeType.Type != null && nodeType.Type.Name.Contains("BaseCommandModule"))
+                            if (nodeType.Type != null && (nodeType.Type.Name.Contains("BaseCommandModule") ||nodeType.Type.Name.Contains("ApplicationCommandModule") ))
                             {
                                 Console.WriteLine(classDec.Identifier.Text + " command module");
                                 var module = new CommandModule()
@@ -82,6 +82,11 @@ sealed class ProjectMetricDataAnalyzer
                                             return ((AttributeArgumentSyntax)
                                                 attributearguments.First()).Expression.ToString();
                                         }
+                                        string GetnthArg(int n)
+                                        {
+                                            return ((AttributeArgumentSyntax)
+                                                attributearguments.ElementAt(n)).Expression.ToString();
+                                        }
                                         string[] GetAllArg()
                                         {
                                             return attributearguments.Cast<AttributeArgumentSyntax>().Select(x=>x.Expression.ToString()).ToArray();
@@ -93,6 +98,13 @@ sealed class ProjectMetricDataAnalyzer
                                                 break;
                                             case "Command":
                                                 Console.Error.WriteLine("Warning: not sure about command name here");
+                                                break;
+                                            case "SlashCommand" when attributearguments.Any():
+                                                command.Name = GetFirstArg();
+                                                command.Description = GetnthArg(1);
+                                                break;
+                                            case "SlashCommand":
+                                                Console.Error.WriteLine("Warning: not sure about command name here (slash btw)");
                                                 break;
                                             case "Description" when attributearguments.Any():
                                                 command.Description = GetFirstArg();
