@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Globalization;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Web;
 using CommandLine;
@@ -544,6 +545,10 @@ public class CommandModule
 public class Command
 {
     public string Location { get; set; }
+    public string Name { get; set; }
+    public string Description { get; set; }
+    public string[] Aliases { get; set; }
+    
 }
 
 sealed class ProjectMetricDataAnalyzer
@@ -611,44 +616,41 @@ sealed class ProjectMetricDataAnalyzer
                                     var loc = method.GetLocation();
                                     var attributes = syntaxGen.GetAttributes(method);
 
-                                    void processAttribute(AttributeSyntax attribute)
+                                    void processAttribute(AttributeSyntax attribute, Command command)
                                     {
                                         Console.WriteLine(attribute.Name);
-                                        foreach (var attributeArgument in syntaxGen.GetAttributeArguments(attribute))
+                                        var attributearguments = syntaxGen.GetAttributeArguments(attribute);
+                                        string GetFirstArg()
                                         {
-                                            if (attributeArgument is AttributeArgumentListSyntax aals)
-                                            {
-                                                foreach (var aas in aals.ChildNodes())
-                                                {
-                                                    Console.WriteLine("aalscn");
-                                                    Console.WriteLine((AttributeArgumentSyntax)aas);
-                                                }   
-                                            }
-                                            else
-                                            {
-                                                Console.WriteLine("aas");
-                                                Console.WriteLine((AttributeArgumentSyntax)attributeArgument);
-                                            }
+                                            return ((AttributeArgumentSyntax)
+                                                attributearguments.First()).Expression.ToString();
+                                        }
+                                        string[] GetAllArg()
+                                        {
+                                            return attributearguments.Cast<AttributeArgumentSyntax>().Select(x=>x.Expression.ToString()).ToArray();
+                                        }
+                                        switch (attribute.Name.ToString())
+                                        {
+                                            case "Command" when attributearguments.Any():
+                                                command.Name = GetFirstArg();
+                                                break;
+                                            case "Command":
+                                                Console.Error.WriteLine("Warning: not sure about command name here");
+                                                break;
+                                            case "Aliases" when attributearguments.Any():
+                                                command.Aliases = GetAllArg();
+                                                break;
+                                            case "Aliases":
+                                                Console.Error.WriteLine("Warning: not sure about aliases here");
+                                                break;
+                                            default:
+                                                Console.Error.WriteLine("Warning: not sure what to do about attribute of type "+ attribute.Name.ToString() );
+                                                break;
                                         }
                                     }
-                                    if (loc.IsInSource && attributes.Any())
+
+                                    if (!loc.IsInSource || !attributes.Any()) continue;
                                     {
-                                        foreach (var attribute in attributes)
-                                        {
-                                            if (attribute is AttributeListSyntax als)
-                                            {
-                                                foreach (var attribut in als.ChildNodes())
-                                                {
-                                                   Console.WriteLine("ATTRBTEINLst");
-                                                   processAttribute((AttributeSyntax)attribut);
-                                                }
-                                            }
-                                            else
-                                            {
-                                                Console.WriteLine("ATTRBTE");
-                                                processAttribute((AttributeSyntax)attribute);
-                                            }
-                                        }
                                         var pos = loc.GetLineSpan();
                                         var ghskip =
                                             $"github{(Environment.OSVersion.Platform == PlatformID.Win32NT ? "\\" : "/")}workspace";
@@ -662,11 +664,27 @@ sealed class ProjectMetricDataAnalyzer
                                         {
                                             lastloc += ghskip.Length;
                                         }
-                                        Console.WriteLine( loc.SourceTree?.FilePath[lastloc..]+ $"#L{pos.StartLinePosition.Line+1} CMD");
-                                        module.Commands.Add(new(){Location =  loc.SourceTree?.FilePath[lastloc..]});
+                                        var command = new Command()
+                                            { Location = loc.SourceTree?.FilePath[lastloc..].Replace("\\", "/") };
+                                        foreach (var attribute in attributes)
+                                        {
+                                            if (attribute is AttributeListSyntax als)
+                                            {
+                                                foreach (var attribut in als.ChildNodes())
+                                                {
+                                                    processAttribute((AttributeSyntax)attribut, command);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                processAttribute((AttributeSyntax)attribute,command);
+                                            }
+                                        }
+                                        Console.WriteLine(JsonSerializer.Serialize(command));
+                                        module.Commands.Add(command);
                                     }
-                                   
-                                    
+
+
                                 }
                             }
                         }
