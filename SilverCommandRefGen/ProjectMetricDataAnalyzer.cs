@@ -155,8 +155,14 @@ sealed class ProjectMetricDataAnalyzer
                                             {
                                                 processAttribute((AttributeSyntax)attribute, command);
                                             }
-                                        }
+                                        } 
                                         Console.WriteLine(JsonSerializer.Serialize(command));
+                                        var parameters = syntaxGen.GetParameters(method);
+                                        foreach (var parameter in parameters)
+                                        {
+                                            var par = ((ParameterSyntax)parameter);
+                                            command.Arguments.Add(new Argument(par.Identifier.ToString(),par.Type.ToString()));
+                                        }
                                         module.Commands.Add(command);
                                     }
                                 }
