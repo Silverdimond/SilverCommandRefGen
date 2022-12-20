@@ -141,16 +141,16 @@ static class CodeMetricsReportExtensions
                 document.AppendHeader(commandModule.Name, 3);
                 foreach (var command in commandModule.Commands)
                 {
-                    document.AppendBlockquote(command.Name);
+                    document.AppendBlockquote(command.Name ?? "Unknown command name");
                     document.AppendParagraph(" - ");
                     if (command.Aliases != null)
                     {
                         foreach (var alias in command.Aliases)
                         {
-                            document.AppendBlockquote(alias);
+                            document.AppendBlockquote(alias ?? "Unknown alias");
                         } 
                     }
-                    document.AppendParagraph(command.Description);
+                    document.AppendParagraph(command.Description ?? "Unknown description");
                     document.AppendParagraph($"https://github.com/{actionInputs.Owner}/{actionInputs.Name}/blob/{actionInputs.Branch}{command.Location}");
                 }
             }
