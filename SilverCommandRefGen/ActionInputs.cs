@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeMetrics;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Editing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -570,7 +571,6 @@ sealed class ProjectMetricDataAnalyzer
             await workspace.LoadProjectAsync(
                     path, cancellationToken: cancellation)
                 .ConfigureAwait(false);
-
         var builder = ImmutableArray.CreateBuilder<(string, CodeAnalysisMetricData,SilverCraftSpecificData)>();
         SilverCraftSpecificData scSpcData = new();
         foreach (var project in projects)
@@ -578,6 +578,7 @@ sealed class ProjectMetricDataAnalyzer
             var compilation =
                 await project.GetCompilationAsync(cancellation)
                     .ConfigureAwait(false);
+            var syntaxGen = SyntaxGenerator.GetGenerator(project);
 
             if (compilation?.SyntaxTrees != null)
                 foreach (var tree in compilation?.SyntaxTrees)
@@ -604,31 +605,41 @@ sealed class ProjectMetricDataAnalyzer
                                 scSpcData.CommandModules.Add(module);
                                 var methods =classDec.DescendantNodesAndSelf()
                                     .Where(x => x.IsKind(SyntaxKind.MethodDeclaration));
-                                var attributes =classDec.DescendantNodesAndSelf()
-                                    .Where(x => x.IsKind(SyntaxKind.Attribute));
+                               
                                 foreach (var method in methods)
                                 {
                                     var loc = method.GetLocation();
-                                    var ancestors = method.Ancestors()?.Where(x=>x != null && attributes.Contains(x));
-                                    foreach (var ancestor in ancestors)
+                                    var attributes = syntaxGen.GetAttributes(method);
+                                    if (attributes.Any())
                                     {
-                                        Console.WriteLine(ancestor.GetLocation().GetLineSpan().StartLinePosition.Line + "Attribute");
+                                        foreach (var attribute in attributes)
+                                        {
+                                            Console.WriteLine(((AttributeSyntax)attribute).Name + "ATTRBTE");
+                                        }
                                     }
+                                   
                                     if (loc.IsInSource)
                                     {
                                         var pos = loc.GetLineSpan();
-                                        if (pos.Path != null)
+                                       /* if (pos.Path != null)
                                         {
-                                            Console.WriteLine(pos.StartLinePosition.Line);
-                                            var methodType = compilation.GetSemanticModel(tree).GetOperation(method);
-                                        }
+                                           // Console.WriteLine(pos.StartLinePosition.Line);
+                                           // var methodType = compilation.GetSemanticModel(tree).GetOperation(method);
+                                        }*/
+
+                                        var ghskip =
+                                            $"github{(Environment.OSVersion.Platform == PlatformID.Win32NT ? "\\" : "/")}workspace";
                                         int lastloc = loc.SourceTree!.FilePath.LastIndexOf(
-                                            $"github{(Environment.OSVersion.Platform == PlatformID.Win32NT ? "\\" : "/")}workspace", StringComparison.Ordinal);
+                                            ghskip, StringComparison.Ordinal);
                                         if (lastloc == -1)
                                         {
                                             lastloc = 0;
                                         }
-                                        Console.WriteLine( loc.SourceTree?.FilePath[lastloc..]+ $"#L{pos.StartLinePosition.Line} CMD");
+                                        else
+                                        {
+                                            lastloc += ghskip.Length;
+                                        }
+                                        Console.WriteLine( loc.SourceTree?.FilePath[lastloc..]+ $"#L{pos.StartLinePosition.Line+1} CMD");
                                         module.Commands.Add(new(){Location =  loc.SourceTree?.FilePath[lastloc..]});
                                     }
                                 }
