@@ -144,7 +144,7 @@ static class CodeMetricsReportExtensions
                     document.AppendBlockquote((command.Name ?? "Unknown command name") +" - "+ (command.Description ?? "Unknown description"));
                     if (command.Aliases != null)
                     {
-                        document.AppendParagraph(string.Join(",", "`"+command.Aliases+"`"));
+                        document.AppendParagraph(string.Join(",", command.Aliases.Select(x=>$"`{x}`")));
                     }
                     document.AppendParagraph($"https://github.com/{actionInputs.Owner}/{actionInputs.Name}/blob/{actionInputs.Branch}{command.Location}");
                 }
