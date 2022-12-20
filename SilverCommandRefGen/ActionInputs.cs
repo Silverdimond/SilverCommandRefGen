@@ -596,11 +596,23 @@ sealed class ProjectMetricDataAnalyzer
                                 });
                                 var methods =classDec.DescendantNodesAndSelf()
                                     .Where(x => x.IsKind(SyntaxKind.MethodDeclaration));
+                                var attributes =classDec.DescendantNodesAndSelf()
+                                    .Where(x => x.IsKind(SyntaxKind.Attribute));
                                 foreach (var method in methods)
                                 {
-                                    Console.WriteLine(method.GetLocation() + " command");
-                                    var methodType = compilation.GetSemanticModel(tree).GetOperation(method);
-                                    Console.WriteLine(methodType.Kind);
+                                    var loc = method.GetLocation();
+                                    if (loc.IsInSource)
+                                    {
+                                        Console.WriteLine(loc.SourceTree?.FilePath + "CMD");
+                                        var pos = loc.GetLineSpan();
+                                        if (pos.Path != null)
+                                        {
+                                            Console.WriteLine(pos.StartLinePosition);
+                                            var methodType = compilation.GetSemanticModel(tree).GetOperation(method);
+                                            Console.WriteLine(methodType.Kind);  
+                                            Console.WriteLine("parent "+methodType.Parent.Kind);  
+                                        }
+                                    }
                                 }
                             }
                         }
