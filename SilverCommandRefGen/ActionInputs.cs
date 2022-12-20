@@ -536,6 +536,13 @@ public class SilverCraftSpecificData
 public class CommandModule
 {
     public string Name { get; set; }
+    public List<Command> Commands { get; set; } = new();
+
+}
+
+public class Command
+{
+    public string Location { get; set; }
 }
 
 sealed class ProjectMetricDataAnalyzer
@@ -590,10 +597,11 @@ sealed class ProjectMetricDataAnalyzer
                             {
                                 
                                 Console.WriteLine(classDec.Identifier.Text + " command module");
-                                scSpcData.CommandModules.Add(new()
+                                var module = new CommandModule()
                                 {
                                     Name = classDec.Identifier.Text
-                                });
+                                };
+                                scSpcData.CommandModules.Add(module);
                                 var methods =classDec.DescendantNodesAndSelf()
                                     .Where(x => x.IsKind(SyntaxKind.MethodDeclaration));
                                 var attributes =classDec.DescendantNodesAndSelf()
@@ -601,17 +609,27 @@ sealed class ProjectMetricDataAnalyzer
                                 foreach (var method in methods)
                                 {
                                     var loc = method.GetLocation();
+                                    var ancestors = method.Ancestors()?.Where(x=>x != null && attributes.Contains(x));
+                                    foreach (var ancestor in ancestors)
+                                    {
+                                        Console.WriteLine(ancestor.GetLocation().GetLineSpan().StartLinePosition.Line + "Attribute");
+                                    }
                                     if (loc.IsInSource)
                                     {
-                                        Console.WriteLine(loc.SourceTree?.FilePath + "CMD");
                                         var pos = loc.GetLineSpan();
                                         if (pos.Path != null)
                                         {
-                                            Console.WriteLine(pos.StartLinePosition);
+                                            Console.WriteLine(pos.StartLinePosition.Line);
                                             var methodType = compilation.GetSemanticModel(tree).GetOperation(method);
-                                            Console.WriteLine(methodType.Kind);  
-                                            Console.WriteLine("parent "+methodType.Parent.Kind);  
                                         }
+                                        int lastloc = loc.SourceTree!.FilePath.LastIndexOf(
+                                            $"github{(Environment.OSVersion.Platform == PlatformID.Win32NT ? "\\" : "/")}workspace", StringComparison.Ordinal);
+                                        if (lastloc == -1)
+                                        {
+                                            lastloc = 0;
+                                        }
+                                        Console.WriteLine( loc.SourceTree?.FilePath[lastloc..]+ $"#L{pos.StartLinePosition.Line} CMD");
+                                        module.Commands.Add(new(){Location =  loc.SourceTree?.FilePath[lastloc..]});
                                     }
                                 }
                             }
