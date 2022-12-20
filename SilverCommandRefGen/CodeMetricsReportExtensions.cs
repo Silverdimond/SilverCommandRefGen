@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text;
 using System.Text.Json;
 using System.Web;
 using Markdown;
@@ -139,14 +140,59 @@ static class CodeMetricsReportExtensions
             foreach (var commandModule in d.CommandModules)
             {
                 document.AppendHeader(commandModule.Name, 3);
-                foreach (var command in commandModule.Commands)
+                foreach (var command in commandModule.Commands.GroupBy(x=>x.Name))
                 {
-                    document.AppendBlockquote((command.Name ?? "Unknown command name") +" - "+ (command.Description ?? "Unknown description"));
-                    if (command.Aliases != null)
+                    document.AppendBlockquote((command.Key ?? "Unknown command name") +" - "+ (command.First().Description ?? "Unknown description"));
+                    foreach (var cmd in command)
                     {
-                        document.AppendParagraph(string.Join(",", command.Aliases.Select(x=>$"`{x}`")));
+                        if (cmd.Aliases != null)
+                        {
+                            document.AppendParagraph(string.Join(",", cmd.Aliases.Select(x=>$"`{x}`")));
+                        }
+
+                        if (cmd.Arguments != null)
+                        {
+                            document.AppendHeader("Arguments", 4);
+                            StringBuilder builder = new();
+                            builder.Append('`').Append(command.Key).Append("`");
+                            foreach (var argument in cmd.Arguments)
+                            {
+                                builder.Append(' ');
+                                if (argument.Optional || argument.RemainingText)
+                                {
+                                    builder.Append('[');
+                                }
+                                else
+                                {
+                                    builder.Append('<');
+                                }
+                                builder.Append(argument.Name);
+                                if (argument.RemainingText)
+                                {
+                                    builder.Append("...");
+                                }
+                                if (argument.Optional ||argument.RemainingText)
+                                {
+                                    builder.Append(']');
+                                }
+                                else
+                                {
+                                    builder.Append('>');
+                                }
+
+                            }
+
+                            document.AppendParagraph(builder.ToString());
+                            List<string> list = new();
+                            foreach (var argument in cmd.Arguments)
+                            {
+                                list.Append($"{argument.Name} - {argument.Description??"No description"} ({argument.Type})");
+                            }
+                            document.AppendList(list.ToString());
+                        }
+                        document.AppendParagraph($"https://github.com/{actionInputs.Owner}/{actionInputs.Name}/blob/{actionInputs.Branch}{cmd.Location}");
                     }
-                    document.AppendParagraph($"https://github.com/{actionInputs.Owner}/{actionInputs.Name}/blob/{actionInputs.Branch}{command.Location}");
+                   
                 }
             }
         }

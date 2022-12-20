@@ -16,26 +16,26 @@ sealed class ProjectMetricDataAnalyzer
 
     public ProjectMetricDataAnalyzer(ILogger<ProjectMetricDataAnalyzer> logger) => _logger = logger;
 
-    public async Task<ImmutableArray<(string, CodeAnalysisMetricData,SilverCraftSpecificData)>> AnalyzeAsync(
+    public async Task<ImmutableArray<(string, CodeAnalysisMetricData, SilverCraftSpecificData)>> AnalyzeAsync(
         ProjectWorkspace workspace, string path, CancellationToken cancellation)
     {
         cancellation.ThrowIfCancellationRequested();
 
         if (File.Exists(path))
         {
-            _logger.LogInformation("Computing analytics on {Path}.", path);
+            _logger.LogInformation("Computing analytics on {Path}", path);
         }
         else
         {
-            _logger.LogWarning("{Path} doesn\'t exist.", path);
-            return ImmutableArray<(string, CodeAnalysisMetricData,SilverCraftSpecificData)>.Empty;
+            _logger.LogWarning("{Path} doesn\'t exist", path);
+            return ImmutableArray<(string, CodeAnalysisMetricData, SilverCraftSpecificData)>.Empty;
         }
 
         var projects =
             await workspace.LoadProjectAsync(
                     path, cancellationToken: cancellation)
                 .ConfigureAwait(false);
-        var builder = ImmutableArray.CreateBuilder<(string, CodeAnalysisMetricData,SilverCraftSpecificData)>();
+        var builder = ImmutableArray.CreateBuilder<(string, CodeAnalysisMetricData, SilverCraftSpecificData)>();
         SilverCraftSpecificData scSpcData = new();
         foreach (var project in projects)
         {
@@ -45,131 +45,199 @@ sealed class ProjectMetricDataAnalyzer
             var syntaxGen = SyntaxGenerator.GetGenerator(project);
 
             if (compilation?.SyntaxTrees != null)
-                foreach (var tree in compilation?.SyntaxTrees)
-                {
-                    var classes = (await tree.GetRootAsync()).DescendantNodesAndSelf()
-                        .Where(x => x.IsKind(SyntaxKind.ClassDeclaration));
-                    foreach (var c in classes)
+                if (compilation?.SyntaxTrees != null)
+                    foreach (var tree in compilation?.SyntaxTrees)
                     {
-                        var classDec = (ClassDeclarationSyntax)c;
-                        var bases = classDec.BaseList;
-
-                        if (bases?.Types == null) continue;
-                        foreach (var b in bases.Types)
+                        var classes = (await tree.GetRootAsync()).DescendantNodesAndSelf()
+                            .Where(x => x.IsKind(SyntaxKind.ClassDeclaration));
+                        foreach (var c in classes)
                         {
-                            var nodeType = compilation.GetSemanticModel(tree).GetTypeInfo(b.Type);
-                            if (nodeType.Type != null && (nodeType.Type.Name.Contains("BaseCommandModule") ||nodeType.Type.Name.Contains("ApplicationCommandModule") ))
+                            var classDec = (ClassDeclarationSyntax)c;
+                            var bases = classDec.BaseList;
+
+                            if (bases?.Types == null) continue;
+                            foreach (var b in bases.Types)
                             {
-                                Console.WriteLine(classDec.Identifier.Text + " command module");
-                                var module = new CommandModule()
+                                var nodeType = compilation.GetSemanticModel(tree).GetTypeInfo(b.Type);
+                                if (nodeType.Type != null && (nodeType.Type.Name.Contains("BaseCommandModule") ||
+                                                              nodeType.Type.Name.Contains("ApplicationCommandModule")))
                                 {
-                                    Name = classDec.Identifier.Text
-                                };
-                                scSpcData.CommandModules.Add(module);
-                                var methods =classDec.DescendantNodesAndSelf()
-                                    .Where(x => x.IsKind(SyntaxKind.MethodDeclaration));
-                               
-                                foreach (var method in methods)
-                                {
-                                    var loc = method.GetLocation();
-                                    var attributes = syntaxGen.GetAttributes(method);
-
-                                    void processAttribute(AttributeSyntax attribute, Command command)
+                                    Console.WriteLine(classDec.Identifier.Text + " command module");
+                                    var module = new CommandModule()
                                     {
-                                        var attributearguments = syntaxGen.GetAttributeArguments(attribute);
-                                        string GetFirstArg()
-                                        {
-                                            return ((AttributeArgumentSyntax)
-                                                attributearguments.First()).Expression.ToString();
-                                        }
-                                        string GetnthArg(int n)
-                                        {
-                                            return ((AttributeArgumentSyntax)
-                                                attributearguments.ElementAt(n)).Expression.ToString();
-                                        }
-                                        string[] GetAllArg()
-                                        {
-                                            return attributearguments.Cast<AttributeArgumentSyntax>().Select(x=>x.Expression.ToString()).ToArray();
-                                        }
-                                        switch (attribute.Name.ToString())
-                                        {
-                                            case "Command" when attributearguments.Any():
-                                                command.Name = GetFirstArg();
-                                                break;
-                                            case "Command":
-                                                Console.Error.WriteLine("Warning: not sure about command name here");
-                                                break;
-                                            case "SlashCommand" when attributearguments.Any():
-                                                command.Name = GetFirstArg();
-                                                command.Description = GetnthArg(1);
-                                                break;
-                                            case "SlashCommand":
-                                                Console.Error.WriteLine("Warning: not sure about command name here (slash btw)");
-                                                break;
-                                            case "Description" when attributearguments.Any():
-                                                command.Description = GetFirstArg();
-                                                break;
-                                            case "Description":
-                                                Console.Error.WriteLine("Warning: not sure about description here");
-                                                break;
-                                            case "Aliases" when attributearguments.Any():
-                                                command.Aliases = GetAllArg();
-                                                break;
-                                            case "Aliases":
-                                                Console.Error.WriteLine("Warning: not sure about aliases here");
-                                                break;
-                                            default:
-                                                Console.Error.WriteLine("Warning: not sure what to do about attribute of type "+ attribute.Name +", will add to list of custom attributes of command." );
-                                                command.CustomAttributes.Add(attribute.Name.ToString());
-                                                break;
-                                        }
-                                    }
+                                        Name = classDec.Identifier.Text
+                                    };
+                                    scSpcData.CommandModules.Add(module);
+                                    var methods = classDec.DescendantNodesAndSelf()
+                                        .Where(x => x.IsKind(SyntaxKind.MethodDeclaration));
 
-                                    if (!loc.IsInSource || !attributes.Any()) continue;
+                                    foreach (var method in methods)
                                     {
-                                        var ghskip =
-                                            $"github{(Environment.OSVersion.Platform == PlatformID.Win32NT ? "\\" : "/")}workspace";
-                                        var lastloc = loc.SourceTree!.FilePath.LastIndexOf(
-                                            ghskip, StringComparison.Ordinal);
-                                        if (lastloc == -1)
+                                        var loc = method.GetLocation();
+                                        var attributes = syntaxGen.GetAttributes(method);
+
+                                        void ProcessAttribute(AttributeSyntax attribute, Command command)
                                         {
-                                            lastloc = 0;
-                                        }
-                                        else
-                                        {
-                                            lastloc += ghskip.Length;
-                                        }
-                                        var linespan = loc.GetLineSpan();
-                                        var command = new Command()
-                                            { Location = loc.SourceTree?.FilePath[lastloc..].Replace("\\", "/") +$"#L{linespan.StartLinePosition.Line+1}-L{linespan.EndLinePosition.Line+1}" };
-                                        foreach (var attribute in attributes)
-                                        {
-                                            if (attribute is AttributeListSyntax als)
+                                            var attributearguments = syntaxGen.GetAttributeArguments(attribute);
+
+                                            string GetFirstArg()
                                             {
-                                                foreach (var attribut in als.ChildNodes())
-                                                {
-                                                    processAttribute((AttributeSyntax)attribut, command);
-                                                }
+                                                return ((AttributeArgumentSyntax)
+                                                    attributearguments.First()).Expression.ToString();
+                                            }
+
+                                            string GetnthArg(int n)
+                                            {
+                                                return ((AttributeArgumentSyntax)
+                                                    attributearguments.ElementAt(n)).Expression.ToString();
+                                            }
+
+                                            string[] GetAllArg()
+                                            {
+                                                return attributearguments.Cast<AttributeArgumentSyntax>()
+                                                    .Select(x => x.Expression.ToString()).ToArray();
+                                            }
+
+                                            switch (attribute.Name.ToString())
+                                            {
+                                                case "Command" when attributearguments.Any():
+                                                    command.Name = GetFirstArg();
+                                                    break;
+                                                case "Command":
+                                                    Console.Error.WriteLine(
+                                                        "Warning: not sure about command name here");
+                                                    break;
+                                                case "SlashCommand" when attributearguments.Any():
+                                                    command.Name = GetFirstArg();
+                                                    command.Description = GetnthArg(1);
+                                                    break;
+                                                case "SlashCommand":
+                                                    Console.Error.WriteLine(
+                                                        "Warning: not sure about command name here (slash btw)");
+                                                    break;
+                                                case "Description" when attributearguments.Any():
+                                                    command.Description = GetFirstArg();
+                                                    break;
+                                                case "Description":
+                                                    Console.Error.WriteLine("Warning: not sure about description here");
+                                                    break;
+                                                case "Aliases" when attributearguments.Any():
+                                                    command.Aliases = GetAllArg();
+                                                    break;
+                                                case "Aliases":
+                                                    Console.Error.WriteLine("Warning: not sure about aliases here");
+                                                    break;
+                                                default:
+                                                    Console.Error.WriteLine(
+                                                        "Warning: not sure what to do about attribute of type " +
+                                                        attribute.Name +
+                                                        ", will add to list of custom attributes of command.");
+                                                    command.CustomAttributes.Add(attribute.Name.ToString());
+                                                    break;
+                                            }
+                                        }
+
+                                        if (!loc.IsInSource || !attributes.Any()) continue;
+                                        {
+                                            var ghskip =
+                                                $"github{(Environment.OSVersion.Platform == PlatformID.Win32NT ? "\\" : "/")}workspace";
+                                            var lastloc = loc.SourceTree!.FilePath.LastIndexOf(
+                                                ghskip, StringComparison.Ordinal);
+                                            if (lastloc == -1)
+                                            {
+                                                lastloc = 0;
                                             }
                                             else
                                             {
-                                                processAttribute((AttributeSyntax)attribute, command);
+                                                lastloc += ghskip.Length;
                                             }
-                                        } 
-                                        Console.WriteLine(JsonSerializer.Serialize(command));
-                                        var parameters = syntaxGen.GetParameters(method);
-                                        foreach (var parameter in parameters)
-                                        {
-                                            var par = ((ParameterSyntax)parameter);
-                                            command.Arguments.Add(new Argument(par.Identifier.ToString(),par.Type.ToString()));
+
+                                            var linespan = loc.GetLineSpan();
+                                            var command = new Command()
+                                            {
+                                                Location = loc.SourceTree?.FilePath[lastloc..].Replace("\\", "/") +
+                                                           $"#L{linespan.StartLinePosition.Line + 1}-L{linespan.EndLinePosition.Line + 1}"
+                                            };
+                                            foreach (var attribute in attributes)
+                                            {
+                                                if (attribute is AttributeListSyntax als)
+                                                {
+                                                    foreach (var attribut in als.ChildNodes())
+                                                    {
+                                                        ProcessAttribute((AttributeSyntax)attribut, command);
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    ProcessAttribute((AttributeSyntax)attribute, command);
+                                                }
+                                            }
+
+                                            Console.WriteLine(JsonSerializer.Serialize(command));
+                                            var parameters = syntaxGen.GetParameters(method);
+                                            foreach (var parameter in parameters)
+                                            {
+                                                var par = ((ParameterSyntax)parameter);
+                                                var arg = new Argument(par.Identifier.ToString(), par.Type.ToString());
+                                                command.Arguments.Add(arg);
+                                                arg.Optional = par.Default is { IsMissing: false };
+                                                var paramAttributes = syntaxGen.GetAttributes(method);
+                                                void ProcessparamAttribute(AttributeSyntax attribute)
+                                                {
+                                                    var attributearguments = syntaxGen.GetAttributeArguments(attribute);
+
+                                                    string GetnthArg(int n)
+                                                    {
+                                                        return ((AttributeArgumentSyntax)
+                                                            attributearguments.ElementAt(n)).Expression.ToString();
+                                                    }
+
+                                                    switch (attribute.Name.ToString())
+                                                    {
+                                                        case "Description" when attributearguments.Any():
+                                                            arg.Description = GetnthArg(0);
+                                                            break;
+                                                        case "Description":
+                                                            Console.Error.WriteLine(
+                                                                "Warning: not sure about description here");
+                                                            break;
+                                                        case "RemainingText":
+                                                            arg.RemainingText = true;
+                                                            break;
+                                                        default:
+                                                            Console.Error.WriteLine(
+                                                                "Warning: not sure what to do about attribute of type " +
+                                                                attribute.Name +
+                                                                ", will add to list of custom attributes of argument.");
+                                                            arg.CustomAttributes.Add(attribute.Name.ToString());
+                                                            break;
+                                                    }
+                                                }
+
+                                                foreach (var attribute in paramAttributes)
+                                                {
+                                                    if (attribute is AttributeListSyntax als)
+                                                    {
+                                                        foreach (var attribut in als.ChildNodes())
+                                                        {
+                                                            ProcessparamAttribute((AttributeSyntax)attribut);
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        ProcessparamAttribute((AttributeSyntax)attribute);
+                                                    }
+                                                }
+                                            }
+
+                                            module.Commands.Add(command);
                                         }
-                                        module.Commands.Add(command);
                                     }
                                 }
                             }
                         }
                     }
-                }
+
             var metricData = await CodeAnalysisMetricData.ComputeAsync(
                     compilation!.Assembly,
                     new CodeMetricsAnalysisContext(compilation, cancellation))

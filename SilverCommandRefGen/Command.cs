@@ -20,4 +20,9 @@ public class Argument
 
     public string Name { get; set; }
     public string Type { get; set; }
+    public string? Description { get; set; }
+    public bool RemainingText { get; set; }
+    public bool Optional { get; set; }
+    public List<string> CustomAttributes { get; set; } = new();
+
 }

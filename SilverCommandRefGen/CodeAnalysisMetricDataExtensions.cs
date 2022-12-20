@@ -160,10 +160,8 @@ static class CodeAnalysisMetricDataExtensions
             {
                 SymbolKind.Field => builder.AppendLine(
                     $"    {ToMemberName(member, className)}{ToClassifier(member)}"),
-
                 SymbolKind.Property => builder.AppendLine(
                     $"    {ToMemberName(member, className)}{ToClassifier(member)}"),
-
                 SymbolKind.Method => builder.AppendLine(
                     $"    {ToMemberName(member, className)}"),
 
@@ -184,14 +182,11 @@ static class CodeAnalysisMetricDataExtensions
         metric.Symbol.Kind switch
         {
             SymbolKind.Assembly => metric.Symbol.Name,
-
             SymbolKind.NamedType => DisplayName(metric.Symbol),
-
             SymbolKind.Method
                 or SymbolKind.Field
                 or SymbolKind.Event
                 or SymbolKind.Property => metric.Symbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat),
-
             _ => metric.Symbol.ToDisplayString()
         };
 
