@@ -610,7 +610,28 @@ sealed class ProjectMetricDataAnalyzer
                                 {
                                     var loc = method.GetLocation();
                                     var attributes = syntaxGen.GetAttributes(method);
-                                    if (attributes.Any())
+
+                                    void processAttribute(AttributeSyntax attribute)
+                                    {
+                                        Console.WriteLine(attribute.Name);
+                                        foreach (var attributeArgument in syntaxGen.GetAttributeArguments(attribute))
+                                        {
+                                            if (attributeArgument is AttributeArgumentListSyntax aals)
+                                            {
+                                                foreach (var aas in aals.ChildNodes())
+                                                {
+                                                    Console.WriteLine("aalscn");
+                                                    Console.WriteLine((AttributeArgumentSyntax)aas);
+                                                }   
+                                            }
+                                            else
+                                            {
+                                                Console.WriteLine("aas");
+                                                Console.WriteLine((AttributeArgumentSyntax)attributeArgument);
+                                            }
+                                        }
+                                    }
+                                    if (loc.IsInSource && attributes.Any())
                                     {
                                         foreach (var attribute in attributes)
                                         {
@@ -618,26 +639,17 @@ sealed class ProjectMetricDataAnalyzer
                                             {
                                                 foreach (var attribut in als.ChildNodes())
                                                 {
-                                                    Console.WriteLine(((AttributeSyntax)attribut).Name + "ATTRBTE");
-
+                                                   Console.WriteLine("ATTRBTEINLst");
+                                                   processAttribute((AttributeSyntax)attribut);
                                                 }
                                             }
                                             else
                                             {
-                                                Console.WriteLine(((AttributeSyntax)attribute).Name + "ATTRBTE");
+                                                Console.WriteLine("ATTRBTE");
+                                                processAttribute((AttributeSyntax)attribute);
                                             }
                                         }
-                                    }
-                                   
-                                    if (loc.IsInSource)
-                                    {
                                         var pos = loc.GetLineSpan();
-                                       /* if (pos.Path != null)
-                                        {
-                                           // Console.WriteLine(pos.StartLinePosition.Line);
-                                           // var methodType = compilation.GetSemanticModel(tree).GetOperation(method);
-                                        }*/
-
                                         var ghskip =
                                             $"github{(Environment.OSVersion.Platform == PlatformID.Win32NT ? "\\" : "/")}workspace";
                                         int lastloc = loc.SourceTree!.FilePath.LastIndexOf(
@@ -653,6 +665,8 @@ sealed class ProjectMetricDataAnalyzer
                                         Console.WriteLine( loc.SourceTree?.FilePath[lastloc..]+ $"#L{pos.StartLinePosition.Line+1} CMD");
                                         module.Commands.Add(new(){Location =  loc.SourceTree?.FilePath[lastloc..]});
                                     }
+                                   
+                                    
                                 }
                             }
                         }
