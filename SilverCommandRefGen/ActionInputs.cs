@@ -525,13 +525,26 @@ static class ServiceCollectionExtensions
             .AddDotNetCodeAnalysisServices();
 }
 
+public class SilverCraftSpecificData
+{
+    /// <summary>
+    /// List of command modules in project (if any)
+    /// </summary>
+    public List<CommandModule> CommandModules { get; set; } = new();
+}
+
+public class CommandModule
+{
+    public string Name { get; set; }
+}
+
 sealed class ProjectMetricDataAnalyzer
 {
     readonly ILogger<ProjectMetricDataAnalyzer> _logger;
 
     public ProjectMetricDataAnalyzer(ILogger<ProjectMetricDataAnalyzer> logger) => _logger = logger;
 
-    internal async Task<ImmutableArray<(string, CodeAnalysisMetricData)>> AnalyzeAsync(
+    public async Task<ImmutableArray<(string, CodeAnalysisMetricData,SilverCraftSpecificData)>> AnalyzeAsync(
         ProjectWorkspace workspace, string path, CancellationToken cancellation)
     {
         cancellation.ThrowIfCancellationRequested();
@@ -543,7 +556,7 @@ sealed class ProjectMetricDataAnalyzer
         else
         {
             _logger.LogWarning("{Path} doesn\'t exist.", path);
-            return ImmutableArray<(string, CodeAnalysisMetricData)>.Empty;
+            return ImmutableArray<(string, CodeAnalysisMetricData,SilverCraftSpecificData)>.Empty;
         }
 
         var projects =
@@ -551,7 +564,8 @@ sealed class ProjectMetricDataAnalyzer
                     path, cancellationToken: cancellation)
                 .ConfigureAwait(false);
 
-        var builder = ImmutableArray.CreateBuilder<(string, CodeAnalysisMetricData)>();
+        var builder = ImmutableArray.CreateBuilder<(string, CodeAnalysisMetricData,SilverCraftSpecificData)>();
+        SilverCraftSpecificData scSpcData = new();
         foreach (var project in projects)
         {
             var compilation =
@@ -574,7 +588,20 @@ sealed class ProjectMetricDataAnalyzer
                             var nodeType = compilation.GetSemanticModel(tree).GetTypeInfo(b.Type);
                             if (nodeType.Type != null && nodeType.Type.Name.Contains("BaseCommandModule"))
                             {
+                                
                                 Console.WriteLine(classDec.Identifier.Text + " command module");
+                                scSpcData.CommandModules.Add(new()
+                                {
+                                    Name = classDec.Identifier.Text
+                                });
+                                var methods =classDec.DescendantNodesAndSelf()
+                                    .Where(x => x.IsKind(SyntaxKind.MethodDeclaration));
+                                foreach (var method in methods)
+                                {
+                                    Console.WriteLine(method.GetLocation() + " command");
+                                    var methodType = compilation.GetSemanticModel(tree).GetOperation(method);
+                                    Console.WriteLine(methodType.Kind);
+                                }
                             }
                         }
                     }
@@ -586,7 +613,7 @@ sealed class ProjectMetricDataAnalyzer
                     new CodeMetricsAnalysisContext(compilation, cancellation))
                 .ConfigureAwait(false);
 
-            builder.Add((project.FilePath!, metricData));
+            builder.Add((project.FilePath!, metricData,scSpcData));
         }
 
         return builder.ToImmutable();

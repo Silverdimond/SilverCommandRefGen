@@ -59,8 +59,9 @@ static async ValueTask StartAnalysisAsync(ActionInputs inputs, IHost host)
             await projectAnalyzer.AnalyzeAsync(
                 workspace, project, tokenSource.Token);
 
-        foreach (var (path, metric) in metrics)
+        foreach (var (path, metric,_) in metrics)
         {
+            //TODO MODIFY HERE
             metricData[path] = metric;
         }
     }
