@@ -188,7 +188,7 @@ static class CodeMetricsReportExtensions
                             {
                                 list.Append($"{argument.Name} - {argument.Description??"No description"} ({argument.Type})");
                             }
-                            document.AppendList(list.ToString());
+                            document.AppendList(list.ToArray());
                         }
                         document.AppendParagraph($"https://github.com/{actionInputs.Owner}/{actionInputs.Name}/blob/{actionInputs.Branch}{cmd.Location}");
                     }
