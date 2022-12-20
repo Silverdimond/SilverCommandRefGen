@@ -2,6 +2,7 @@ using System.Text;
 using CommandLine;
 using DotNet.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeMetrics;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileSystemGlobbing;
 using Microsoft.Extensions.Hosting;
@@ -51,6 +52,8 @@ static async ValueTask StartAnalysisAsync(ActionInputs inputs, IHost host)
     matcher.AddIncludePatterns(new[] { "**/*.csproj", "**/*.vbproj" });
 
     Dictionary<string, CodeAnalysisMetricData> metricData = new(StringComparer.OrdinalIgnoreCase);
+    Dictionary<string, SilverCraftSpecificData> specificData = new(StringComparer.OrdinalIgnoreCase);
+
     var projects = matcher.GetResultsInFullPath(inputs.Directory);
 
     foreach (var project in projects)
@@ -59,10 +62,10 @@ static async ValueTask StartAnalysisAsync(ActionInputs inputs, IHost host)
             await projectAnalyzer.AnalyzeAsync(
                 workspace, project, tokenSource.Token);
 
-        foreach (var (path, metric,_) in metrics)
+        foreach (var (path, metric, specific) in metrics)
         {
-            //TODO MODIFY HERE
             metricData[path] = metric;
+            specificData[path] = specific;
         }
     }
 
@@ -93,6 +96,23 @@ static async ValueTask StartAnalysisAsync(ActionInputs inputs, IHost host)
     {
         summary.Append("No metrics were determined.");
     }
+
+    if (specificData is { Count: > 0 })
+    {
+        var fileName = "SilverCraftSpec.md";
+        var fullPath = Path.Combine(inputs.Directory, fileName);
+        var logger = Get<ILoggerFactory>(host).CreateLogger(nameof(StartAnalysisAsync));
+        var fileExists = File.Exists(fullPath);
+        logger.LogInformation("{Updating} {FileName} markdown file with latest silvercraft specific data.", (fileExists ? "Updating" : "Creating"), fileName);
+        var contents = specificData.ToMarkDownBody(inputs);
+        await File.WriteAllTextAsync(
+            fullPath,
+            contents,
+            tokenSource.Token);
+
+        updatedMetrics = true;
+    }
+   
 
     // https://docs.github.com/actions/reference/workflow-commands-for-github-actions#setting-an-output-parameter
     // ::set-output deprecated as mentioned in https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/
