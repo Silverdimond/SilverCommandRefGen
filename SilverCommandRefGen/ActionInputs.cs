@@ -614,7 +614,18 @@ sealed class ProjectMetricDataAnalyzer
                                     {
                                         foreach (var attribute in attributes)
                                         {
-                                            Console.WriteLine(((AttributeSyntax)attribute).Name + "ATTRBTE");
+                                            if (attribute is AttributeListSyntax als)
+                                            {
+                                                foreach (var attribut in als.ChildNodes())
+                                                {
+                                                    Console.WriteLine(((AttributeSyntax)attribut).Name + "ATTRBTE");
+
+                                                }
+                                            }
+                                            else
+                                            {
+                                                Console.WriteLine(((AttributeSyntax)attribute).Name + "ATTRBTE");
+                                            }
                                         }
                                     }
                                    
