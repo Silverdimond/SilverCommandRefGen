@@ -154,7 +154,7 @@ static class CodeMetricsReportExtensions
                         {
                             document.AppendHeader("Arguments", 4);
                             StringBuilder builder = new();
-                            builder.Append('`').Append(command.Key).Append("`");
+                            builder.Append('`').Append(command.Key);
                             foreach (var argument in cmd.Arguments)
                             {
                                 builder.Append(' ');
@@ -181,7 +181,7 @@ static class CodeMetricsReportExtensions
                                 }
 
                             }
-
+                            builder.Append("`");
                             document.AppendParagraph(builder.ToString());
                             List<string> list = new();
                             foreach (var argument in cmd.Arguments)
