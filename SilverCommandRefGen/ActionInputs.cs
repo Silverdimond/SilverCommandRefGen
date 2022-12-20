@@ -548,7 +548,7 @@ public class Command
     public string Name { get; set; }
     public string Description { get; set; }
     public string[] Aliases { get; set; }
-    
+    public List<string> CustomAttributes { get; set; } = new();
 }
 
 sealed class ProjectMetricDataAnalyzer
@@ -637,6 +637,12 @@ sealed class ProjectMetricDataAnalyzer
                                             case "Command":
                                                 Console.Error.WriteLine("Warning: not sure about command name here");
                                                 break;
+                                            case "Description" when attributearguments.Any():
+                                                command.Description = GetFirstArg();
+                                                break;
+                                            case "Description":
+                                                Console.Error.WriteLine("Warning: not sure about description here");
+                                                break;
                                             case "Aliases" when attributearguments.Any():
                                                 command.Aliases = GetAllArg();
                                                 break;
@@ -644,17 +650,17 @@ sealed class ProjectMetricDataAnalyzer
                                                 Console.Error.WriteLine("Warning: not sure about aliases here");
                                                 break;
                                             default:
-                                                Console.Error.WriteLine("Warning: not sure what to do about attribute of type "+ attribute.Name.ToString() );
+                                                Console.Error.WriteLine("Warning: not sure what to do about attribute of type "+ attribute.Name +", will add to list of custom attributes of command." );
+                                                command.CustomAttributes.Add(attribute.Name.ToString());
                                                 break;
                                         }
                                     }
 
                                     if (!loc.IsInSource || !attributes.Any()) continue;
                                     {
-                                        var pos = loc.GetLineSpan();
                                         var ghskip =
                                             $"github{(Environment.OSVersion.Platform == PlatformID.Win32NT ? "\\" : "/")}workspace";
-                                        int lastloc = loc.SourceTree!.FilePath.LastIndexOf(
+                                        var lastloc = loc.SourceTree!.FilePath.LastIndexOf(
                                             ghskip, StringComparison.Ordinal);
                                         if (lastloc == -1)
                                         {
@@ -664,8 +670,9 @@ sealed class ProjectMetricDataAnalyzer
                                         {
                                             lastloc += ghskip.Length;
                                         }
+                                        var linespan = loc.GetLineSpan();
                                         var command = new Command()
-                                            { Location = loc.SourceTree?.FilePath[lastloc..].Replace("\\", "/") };
+                                            { Location = loc.SourceTree?.FilePath[lastloc..].Replace("\\", "/") +$"#L{linespan.StartLinePosition}-L{linespan.EndLinePosition}" };
                                         foreach (var attribute in attributes)
                                         {
                                             if (attribute is AttributeListSyntax als)
@@ -677,14 +684,12 @@ sealed class ProjectMetricDataAnalyzer
                                             }
                                             else
                                             {
-                                                processAttribute((AttributeSyntax)attribute,command);
+                                                processAttribute((AttributeSyntax)attribute, command);
                                             }
                                         }
                                         Console.WriteLine(JsonSerializer.Serialize(command));
                                         module.Commands.Add(command);
                                     }
-
-
                                 }
                             }
                         }
