@@ -62,7 +62,6 @@ sealed class ProjectMetricDataAnalyzer
                                 if (nodeType.Type != null && (nodeType.Type.Name.Contains("BaseCommandModule") ||
                                                               nodeType.Type.Name.Contains("ApplicationCommandModule")))
                                 {
-                                    Console.WriteLine(classDec.Identifier.Text + " command module");
                                     var module = new CommandModule()
                                     {
                                         Name = classDec.Identifier.Text
@@ -79,19 +78,12 @@ sealed class ProjectMetricDataAnalyzer
                                         void ProcessAttribute(AttributeSyntax attribute, Command command)
                                         {
                                             var attributearguments = syntaxGen.GetAttributeArguments(attribute);
-
-                                            string GetFirstArg()
-                                            {
-                                                return ((AttributeArgumentSyntax)
-                                                    attributearguments.First()).Expression.ToString();
-                                            }
-
+                                            string GetFirstArg() => GetnthArg(0);
                                             string GetnthArg(int n)
                                             {
                                                 return ((AttributeArgumentSyntax)
                                                     attributearguments.ElementAt(n)).Expression.ToString();
                                             }
-
                                             string[] GetAllArg()
                                             {
                                                 return attributearguments.Cast<AttributeArgumentSyntax>()
@@ -172,8 +164,6 @@ sealed class ProjectMetricDataAnalyzer
                                                     ProcessAttribute((AttributeSyntax)attribute, command);
                                                 }
                                             }
-
-                                            Console.WriteLine(JsonSerializer.Serialize(command));
                                             var parameters = syntaxGen.GetParameters(method);
                                             foreach (var parameter in parameters)
                                             {
@@ -191,7 +181,6 @@ sealed class ProjectMetricDataAnalyzer
                                                         return ((AttributeArgumentSyntax)
                                                             attributearguments.ElementAt(n)).Expression.ToString();
                                                     }
-
                                                     switch (attribute.Name.ToString())
                                                     {
                                                         case "Description" when attributearguments.Any():

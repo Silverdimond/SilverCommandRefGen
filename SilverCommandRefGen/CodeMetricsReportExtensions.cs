@@ -142,7 +142,7 @@ static class CodeMetricsReportExtensions
                 document.AppendHeader(commandModule.Name, 3);
                 foreach (var command in commandModule.Commands.GroupBy(x=>x.Name))
                 {
-                    document.AppendBlockquote((command.Key ?? "Unknown command name") +" - "+ (command.First().Description ?? "Unknown description"));
+                    document.AppendHeader((command.Key ?? "Unknown command name") +" - "+ (command.First().Description ?? "Unknown description"),4);
                     foreach (var cmd in command)
                     {
                         if (cmd.Aliases != null)
@@ -152,7 +152,7 @@ static class CodeMetricsReportExtensions
 
                         if (cmd.Arguments != null)
                         {
-                            document.AppendHeader("Arguments", 4);
+                            document.AppendHeader("Arguments", 5);
                             StringBuilder builder = new();
                             builder.Append('`').Append(command.Key);
                             foreach (var argument in cmd.Arguments)
@@ -183,12 +183,7 @@ static class CodeMetricsReportExtensions
                             }
                             builder.Append("`");
                             document.AppendParagraph(builder.ToString());
-                            List<string> list = new();
-                            foreach (var argument in cmd.Arguments)
-                            {
-                                list.Append($"{argument.Name} - {argument.Description??"No description"} ({argument.Type})");
-                            }
-                            document.AppendList(list.ToArray());
+                            document.AppendList(cmd.Arguments.Select(argument => $"{argument.Name} - {argument.Description ?? "No description"} ({argument.Type})").ToArray());
                         }
                         document.AppendParagraph($"https://github.com/{actionInputs.Owner}/{actionInputs.Name}/blob/{actionInputs.Branch}{cmd.Location}");
                     }
