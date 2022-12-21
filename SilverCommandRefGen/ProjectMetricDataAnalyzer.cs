@@ -171,7 +171,7 @@ sealed class ProjectMetricDataAnalyzer
                                                 var arg = new Argument(par.Identifier.ToString(), par.Type.ToString());
                                                 command.Arguments.Add(arg);
                                                 arg.Optional = par.Default is { IsMissing: false };
-                                                var paramAttributes = syntaxGen.GetAttributes(method);
+                                                var paramAttributes = syntaxGen.GetAttributes(parameter);
                                                 void ProcessparamAttribute(AttributeSyntax attribute)
                                                 {
                                                     var attributearguments = syntaxGen.GetAttributeArguments(attribute);

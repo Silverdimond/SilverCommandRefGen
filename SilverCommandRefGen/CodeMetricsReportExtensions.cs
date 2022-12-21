@@ -142,7 +142,8 @@ static class CodeMetricsReportExtensions
                 document.AppendHeader(commandModule.Name, 3);
                 foreach (var command in commandModule.Commands.GroupBy(x=>x.Name))
                 {
-                    document.AppendHeader((command.Key ?? "Unknown command name") +" - "+ (command.First().Description ?? "Unknown description"),4);
+                    document.AppendHeader((command.Key ?? "Unknown command name") ,4);
+                    document.AppendParagraph(command.First().Description ?? "Unknown description");
                     foreach (var cmd in command)
                     {
                         if (cmd.Aliases != null)
