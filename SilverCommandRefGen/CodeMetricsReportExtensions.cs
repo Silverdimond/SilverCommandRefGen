@@ -187,13 +187,12 @@ static class CodeMetricsReportExtensions
                             {
                                 builder.Append('>');
                             }
-
-                            builder.Append("`");
-                            document.AppendParagraph(builder.ToString());
-                            document.AppendList(cmd.Arguments.Select(argument =>
-                                    $"{argument.Name} - {argument.Description ?? "No description"} ({argument.Type})")
-                                .ToArray());
                         }
+                        builder.Append("`");
+                        document.AppendParagraph(builder.ToString());
+                        document.AppendList(cmd.Arguments.Select(argument =>
+                                $"{argument.Name} - {argument.Description ?? "No description"} ({argument.Type})")
+                            .ToArray());
                         document.AppendParagraph(
                             $"https://github.com/{actionInputs.Owner}/{actionInputs.Name}/blob/{actionInputs.Branch}{cmd.Location}");
                     }
