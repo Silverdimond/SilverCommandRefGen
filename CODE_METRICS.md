@@ -597,10 +597,10 @@ The `DotNet.CodeAnalysis.VisualBasic` namespace contains 1 named types.
 The *SilverCommandRefGen.csproj* project file contains:
 
 - 2 namespaces.
-- 9 named types.
-- 874 total lines of source code.
-- Approximately 381 lines of executable code.
-- The highest cyclomatic complexity is 32 :exploding_head:.
+- 10 named types.
+- 1,005 total lines of source code.
+- Approximately 429 lines of executable code.
+- The highest cyclomatic complexity is 43 :exploding_head:.
 
 <details>
 <summary>
@@ -650,12 +650,12 @@ The `<global namespace>` namespace contains 1 named types.
 </summary>
 <br>
 
-The `SilverCommandRefGen` namespace contains 8 named types.
+The `SilverCommandRefGen` namespace contains 9 named types.
 
-- 8 named types.
-- 737 total lines of source code.
-- Approximately 257 lines of executable code.
-- The highest cyclomatic complexity is 32 :exploding_head:.
+- 9 named types.
+- 868 total lines of source code.
+- Approximately 305 lines of executable code.
+- The highest cyclomatic complexity is 43 :exploding_head:.
 
 <details>
 <summary>
@@ -689,6 +689,35 @@ The `SilverCommandRefGen` namespace contains 8 named types.
 
 <details>
 <summary>
+  <strong id="argument">
+    Argument :heavy_check_mark:
+  </strong>
+</summary>
+<br>
+
+- The `Argument` contains 7 members.
+- 16 total lines of source code.
+- Approximately 3 lines of executable code.
+- The highest cyclomatic complexity is 2 :heavy_check_mark:.
+
+| Member kind | Line number | Maintainability index | Cyclomatic complexity | Depth of inheritance | Class coupling | Lines of source / executable code |
+| :-: | :-: | :-: | :-: | :-: | :-: | :-: |
+| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/Command.cs#L15' title='Argument.Argument(string name, string type)'>15</a> | 85 | 1 :heavy_check_mark: | 0 | 0 | 5 / 2 |
+| Property | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/Command.cs#L26' title='List<string> Argument.CustomAttributes'>26</a> | 100 | 2 :heavy_check_mark: | 0 | 1 | 1 / 1 |
+| Property | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/Command.cs#L23' title='string? Argument.Description'>23</a> | 100 | 2 :heavy_check_mark: | 0 | 1 | 1 / 0 |
+| Property | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/Command.cs#L21' title='string Argument.Name'>21</a> | 100 | 2 :heavy_check_mark: | 0 | 0 | 1 / 0 |
+| Property | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/Command.cs#L25' title='bool Argument.Optional'>25</a> | 100 | 2 :heavy_check_mark: | 0 | 0 | 1 / 0 |
+| Property | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/Command.cs#L24' title='bool Argument.RemainingText'>24</a> | 100 | 2 :heavy_check_mark: | 0 | 0 | 1 / 0 |
+| Property | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/Command.cs#L22' title='string Argument.Type'>22</a> | 100 | 2 :heavy_check_mark: | 0 | 0 | 1 / 0 |
+
+<a href="#Argument-class-diagram">:link: to `Argument` class diagram</a>
+
+<a href="#silvercommandrefgen">:top: back to SilverCommandRefGen</a>
+
+</details>
+
+<details>
+<summary>
   <strong id="codeanalysismetricdataextensions">
     CodeAnalysisMetricDataExtensions :x:
   </strong>
@@ -696,7 +725,7 @@ The `SilverCommandRefGen` namespace contains 8 named types.
 <br>
 
 - The `CodeAnalysisMetricDataExtensions` contains 9 members.
-- 208 total lines of source code.
+- 203 total lines of source code.
 - Approximately 67 lines of executable code.
 - The highest cyclomatic complexity is 13 :x:.
 
@@ -705,12 +734,12 @@ The `SilverCommandRefGen` namespace contains 8 named types.
 | Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeAnalysisMetricDataExtensions.cs#L26' title='int CodeAnalysisMetricDataExtensions.CountKind(CodeAnalysisMetricData metric, SymbolKind kind)'>26</a> | 82 | 1 :heavy_check_mark: | 0 | 4 | 4 / 3 |
 | Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeAnalysisMetricDataExtensions.cs#L23' title='int CodeAnalysisMetricDataExtensions.CountNamedTypes(CodeAnalysisMetricData metric)'>23</a> | 100 | 1 :heavy_check_mark: | 0 | 2 | 2 / 1 |
 | Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeAnalysisMetricDataExtensions.cs#L20' title='int CodeAnalysisMetricDataExtensions.CountNamespaces(CodeAnalysisMetricData metric)'>20</a> | 100 | 1 :heavy_check_mark: | 0 | 2 | 2 / 1 |
-| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeAnalysisMetricDataExtensions.cs#L198' title='string CodeAnalysisMetricDataExtensions.DisplayName(ISymbol symbol)'>198</a> | 69 | 2 :heavy_check_mark: | 0 | 3 | 17 / 7 |
+| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeAnalysisMetricDataExtensions.cs#L193' title='string CodeAnalysisMetricDataExtensions.DisplayName(ISymbol symbol)'>193</a> | 69 | 2 :heavy_check_mark: | 0 | 3 | 17 / 7 |
 | Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeAnalysisMetricDataExtensions.cs#L31' title='(int Complexity, string Emoji) CodeAnalysisMetricDataExtensions.FindHighestCyclomaticComplexity(CodeAnalysisMetricData metric)'>31</a> | 73 | 1 :heavy_check_mark: | 0 | 4 | 12 / 6 |
 | Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeAnalysisMetricDataExtensions.cs#L44' title='IEnumerable<TSource> CodeAnalysisMetricDataExtensions.Flatten<TSource>(IEnumerable<TSource> parent, Func<TSource, IEnumerable<TSource>> childSelector)'>44</a> | 87 | 1 :heavy_check_mark: | 0 | 3 | 5 / 2 |
 | Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeAnalysisMetricDataExtensions.cs#L10' title='string CodeAnalysisMetricDataExtensions.ToCyclomaticComplexityEmoji(CodeAnalysisMetricData metric)'>10</a> | 88 | 1 :heavy_check_mark: | 0 | 2 | 9 / 1 |
-| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeAnalysisMetricDataExtensions.cs#L183' title='string CodeAnalysisMetricDataExtensions.ToDisplayName(CodeAnalysisMetricData metric)'>183</a> | 100 | 1 :heavy_check_mark: | 0 | 2 | 14 / 1 |
-| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeAnalysisMetricDataExtensions.cs#L50' title='string CodeAnalysisMetricDataExtensions.ToMermaidClassDiagram(CodeAnalysisMetricData classMetric, string className)'>50</a> | 41 | 13 :x: | 0 | 11 | 132 / 45 |
+| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeAnalysisMetricDataExtensions.cs#L181' title='string CodeAnalysisMetricDataExtensions.ToDisplayName(CodeAnalysisMetricData metric)'>181</a> | 100 | 1 :heavy_check_mark: | 0 | 2 | 11 / 1 |
+| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeAnalysisMetricDataExtensions.cs#L50' title='string CodeAnalysisMetricDataExtensions.ToMermaidClassDiagram(CodeAnalysisMetricData classMetric, string className)'>50</a> | 41 | 13 :x: | 0 | 11 | 130 / 45 |
 
 <a href="#CodeAnalysisMetricDataExtensions-class-diagram">:link: to `CodeAnalysisMetricDataExtensions` class diagram</a>
 
@@ -721,31 +750,31 @@ The `SilverCommandRefGen` namespace contains 8 named types.
 <details>
 <summary>
   <strong id="codemetricsreportextensions">
-    CodeMetricsReportExtensions :heavy_check_mark:
+    CodeMetricsReportExtensions :exploding_head:
   </strong>
 </summary>
 <br>
 
 - The `CodeMetricsReportExtensions` contains 13 members.
-- 278 total lines of source code.
-- Approximately 104 lines of executable code.
-- The highest cyclomatic complexity is 7 :heavy_check_mark:.
+- 334 total lines of source code.
+- Approximately 131 lines of executable code.
+- The highest cyclomatic complexity is 17 :exploding_head:.
 
 | Member kind | Line number | Maintainability index | Cyclomatic complexity | Depth of inheritance | Class coupling | Lines of source / executable code |
 | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
-| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeMetricsReportExtensions.cs#L192' title='void CodeMetricsReportExtensions.AppendMaintainedByBotMessage(MarkdownDocument document)'>192</a> | 98 | 1 :heavy_check_mark: | 0 | 3 | 3 / 1 |
-| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeMetricsReportExtensions.cs#L179' title='void CodeMetricsReportExtensions.AppendMermaidClassDiagrams(MarkdownDocument document, List<(string Id, string Class, string MermaidCode)> diagrams)'>179</a> | 72 | 2 :heavy_check_mark: | 0 | 5 | 12 / 5 |
-| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeMetricsReportExtensions.cs#L156' title='void CodeMetricsReportExtensions.AppendMetricDefinitions(MarkdownDocument document)'>156</a> | 66 | 2 :heavy_check_mark: | 0 | 5 | 22 / 7 |
-| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeMetricsReportExtensions.cs#L249' title='IMarkdownDocument CodeMetricsReportExtensions.CloseCollapsibleSection(IMarkdownDocument document)'>249</a> | 98 | 1 :heavy_check_mark: | 0 | 2 | 2 / 1 |
-| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeMetricsReportExtensions.cs#L252' title='IMarkdownDocument CodeMetricsReportExtensions.DisableMarkdownLinterAndCaptureConfig(IMarkdownDocument document)'>252</a> | 98 | 1 :heavy_check_mark: | 0 | 2 | 4 / 1 |
-| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeMetricsReportExtensions.cs#L230' title='IMarkdownDocument CodeMetricsReportExtensions.OpenCollapsibleSection(IMarkdownDocument document, string elementId, string symbolName, string highestComplexity)'>230</a> | 91 | 1 :heavy_check_mark: | 0 | 2 | 9 / 1 |
-| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeMetricsReportExtensions.cs#L240' title='string CodeMetricsReportExtensions.PrepareElementId(string value)'>240</a> | 88 | 1 :heavy_check_mark: | 0 | 1 | 8 / 1 |
-| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeMetricsReportExtensions.cs#L257' title='IMarkdownDocument CodeMetricsReportExtensions.RestoreMarkdownLinter(IMarkdownDocument document)'>257</a> | 98 | 1 :heavy_check_mark: | 0 | 2 | 3 / 1 |
-| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeMetricsReportExtensions.cs#L219' title='(string elementId, string displayName, string anchorLink, (int highestComplexity, string emoji)) CodeMetricsReportExtensions.ToIdAndAnchorPair(CodeAnalysisMetricData metric)'>219</a> | 71 | 2 :heavy_check_mark: | 0 | 5 | 10 / 5 |
-| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeMetricsReportExtensions.cs#L261' title='string CodeMetricsReportExtensions.ToLineNumberUrl(ISymbol symbol, string symbolDisplayName, ActionInputs actionInputs)'>261</a> | 61 | 4 :heavy_check_mark: | 0 | 3 | 26 / 10 |
-| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeMetricsReportExtensions.cs#L12' title='string CodeMetricsReportExtensions.ToMarkDownBody(Dictionary<string, CodeAnalysisMetricData> metricData, ActionInputs actionInputs)'>12</a> | 42 | 6 :heavy_check_mark: | 0 | 15 | 111 / 47 |
-| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeMetricsReportExtensions.cs#L124' title='string CodeMetricsReportExtensions.ToMarkDownBody(Dictionary<string, SilverCraftSpecificData> metricData, ActionInputs actionInputs)'>124</a> | 56 | 7 :heavy_check_mark: | 0 | 8 | 32 / 16 |
-| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeMetricsReportExtensions.cs#L196' title='MarkdownTableRow CodeMetricsReportExtensions.ToTableRowFrom(CodeAnalysisMetricData metric, ActionInputs actionInputs)'>196</a> | 65 | 1 :heavy_check_mark: | 0 | 5 | 22 / 8 |
+| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeMetricsReportExtensions.cs#L248' title='void CodeMetricsReportExtensions.AppendMaintainedByBotMessage(MarkdownDocument document)'>248</a> | 98 | 1 :heavy_check_mark: | 0 | 3 | 3 / 1 |
+| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeMetricsReportExtensions.cs#L235' title='void CodeMetricsReportExtensions.AppendMermaidClassDiagrams(MarkdownDocument document, List<(string Id, string Class, string MermaidCode)> diagrams)'>235</a> | 72 | 2 :heavy_check_mark: | 0 | 5 | 12 / 5 |
+| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeMetricsReportExtensions.cs#L208' title='void CodeMetricsReportExtensions.AppendMetricDefinitions(MarkdownDocument document)'>208</a> | 66 | 2 :heavy_check_mark: | 0 | 6 | 26 / 7 |
+| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeMetricsReportExtensions.cs#L306' title='IMarkdownDocument CodeMetricsReportExtensions.CloseCollapsibleSection(IMarkdownDocument document)'>306</a> | 98 | 1 :heavy_check_mark: | 0 | 2 | 2 / 1 |
+| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeMetricsReportExtensions.cs#L309' title='IMarkdownDocument CodeMetricsReportExtensions.DisableMarkdownLinterAndCaptureConfig(IMarkdownDocument document)'>309</a> | 98 | 1 :heavy_check_mark: | 0 | 2 | 4 / 1 |
+| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeMetricsReportExtensions.cs#L287' title='IMarkdownDocument CodeMetricsReportExtensions.OpenCollapsibleSection(IMarkdownDocument document, string elementId, string symbolName, string highestComplexity)'>287</a> | 91 | 1 :heavy_check_mark: | 0 | 2 | 9 / 1 |
+| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeMetricsReportExtensions.cs#L297' title='string CodeMetricsReportExtensions.PrepareElementId(string value)'>297</a> | 88 | 1 :heavy_check_mark: | 0 | 1 | 8 / 1 |
+| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeMetricsReportExtensions.cs#L314' title='IMarkdownDocument CodeMetricsReportExtensions.RestoreMarkdownLinter(IMarkdownDocument document)'>314</a> | 98 | 1 :heavy_check_mark: | 0 | 2 | 3 / 1 |
+| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeMetricsReportExtensions.cs#L276' title='(string elementId, string displayName, string anchorLink, (int highestComplexity, string emoji)) CodeMetricsReportExtensions.ToIdAndAnchorPair(CodeAnalysisMetricData metric)'>276</a> | 71 | 2 :heavy_check_mark: | 0 | 5 | 11 / 5 |
+| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeMetricsReportExtensions.cs#L318' title='string CodeMetricsReportExtensions.ToLineNumberUrl(ISymbol symbol, string symbolDisplayName, ActionInputs actionInputs)'>318</a> | 61 | 4 :heavy_check_mark: | 0 | 3 | 26 / 10 |
+| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeMetricsReportExtensions.cs#L13' title='string CodeMetricsReportExtensions.ToMarkDownBody(Dictionary<string, CodeAnalysisMetricData> metricData, ActionInputs actionInputs)'>13</a> | 42 | 5 :heavy_check_mark: | 0 | 15 | 108 / 46 |
+| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeMetricsReportExtensions.cs#L122' title='string CodeMetricsReportExtensions.ToMarkDownBody(Dictionary<string, SilverCraftSpecificData> metricData, ActionInputs actionInputs)'>122</a> | 42 | 17 :exploding_head: | 0 | 11 | 85 / 44 |
+| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/CodeMetricsReportExtensions.cs#L252' title='MarkdownTableRow CodeMetricsReportExtensions.ToTableRowFrom(CodeAnalysisMetricData metric, ActionInputs actionInputs)'>252</a> | 65 | 1 :heavy_check_mark: | 0 | 5 | 22 / 8 |
 
 <a href="#CodeMetricsReportExtensions-class-diagram">:link: to `CodeMetricsReportExtensions` class diagram</a>
 
@@ -761,14 +790,15 @@ The `SilverCommandRefGen` namespace contains 8 named types.
 </summary>
 <br>
 
-- The `Command` contains 5 members.
-- 8 total lines of source code.
-- Approximately 1 lines of executable code.
+- The `Command` contains 6 members.
+- 9 total lines of source code.
+- Approximately 2 lines of executable code.
 - The highest cyclomatic complexity is 2 :heavy_check_mark:.
 
 | Member kind | Line number | Maintainability index | Cyclomatic complexity | Depth of inheritance | Class coupling | Lines of source / executable code |
 | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
 | Property | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/Command.cs#L8' title='string[]? Command.Aliases'>8</a> | 100 | 2 :heavy_check_mark: | 0 | 0 | 1 / 0 |
+| Property | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/Command.cs#L10' title='List<Argument> Command.Arguments'>10</a> | 100 | 2 :heavy_check_mark: | 0 | 2 | 1 / 1 |
 | Property | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/Command.cs#L9' title='List<string> Command.CustomAttributes'>9</a> | 100 | 2 :heavy_check_mark: | 0 | 1 | 1 / 1 |
 | Property | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/Command.cs#L7' title='string? Command.Description'>7</a> | 100 | 2 :heavy_check_mark: | 0 | 1 | 1 / 0 |
 | Property | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/Command.cs#L5' title='string Command.Location'>5</a> | 100 | 2 :heavy_check_mark: | 0 | 0 | 1 / 0 |
@@ -813,15 +843,15 @@ The `SilverCommandRefGen` namespace contains 8 named types.
 <br>
 
 - The `ProjectMetricDataAnalyzer` contains 3 members.
-- 165 total lines of source code.
-- Approximately 59 lines of executable code.
-- The highest cyclomatic complexity is 32 :exploding_head:.
+- 227 total lines of source code.
+- Approximately 76 lines of executable code.
+- The highest cyclomatic complexity is 43 :exploding_head:.
 
 | Member kind | Line number | Maintainability index | Cyclomatic complexity | Depth of inheritance | Class coupling | Lines of source / executable code |
 | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
 | Field | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/ProjectMetricDataAnalyzer.cs#L15' title='ILogger<ProjectMetricDataAnalyzer> ProjectMetricDataAnalyzer._logger'>15</a> | 100 | 0 :heavy_check_mark: | 0 | 1 | 1 / 0 |
 | Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/ProjectMetricDataAnalyzer.cs#L17' title='ProjectMetricDataAnalyzer.ProjectMetricDataAnalyzer(ILogger<ProjectMetricDataAnalyzer> logger)'>17</a> | 96 | 1 :heavy_check_mark: | 0 | 1 | 1 / 1 |
-| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/ProjectMetricDataAnalyzer.cs#L19' title='Task<ImmutableArray<(string, CodeAnalysisMetricData, SilverCraftSpecificData)>> ProjectMetricDataAnalyzer.AnalyzeAsync(ProjectWorkspace workspace, string path, CancellationToken cancellation)'>19</a> | 35 | 32 :exploding_head: | 0 | 21 | 158 / 58 |
+| Method | <a href='https://github.com/Silverdimond/SilverCommandRefGen/blob/master/SilverCommandRefGen/ProjectMetricDataAnalyzer.cs#L19' title='Task<ImmutableArray<(string, CodeAnalysisMetricData, SilverCraftSpecificData)>> ProjectMetricDataAnalyzer.AnalyzeAsync(ProjectWorkspace workspace, string path, CancellationToken cancellation)'>19</a> | 30 | 43 :exploding_head: | 0 | 23 | 220 / 75 |
 
 <a href="#ProjectMetricDataAnalyzer-class-diagram">:link: to `ProjectMetricDataAnalyzer` class diagram</a>
 
@@ -1267,6 +1297,24 @@ class ActionInputs{
 
 ```
 
+<div id="Argument-class-diagram"></div>
+
+##### `Argument` class diagram
+
+```mermaid
+classDiagram
+class Argument{
+    +string Name
+    +string Type
+    +string? Description
+    +bool RemainingText
+    +bool Optional
+    +List<string> CustomAttributes
+    +.ctor(string name, string type) Argument
+}
+
+```
+
 <div id="CodeAnalysisMetricDataExtensions-class-diagram"></div>
 
 ##### `CodeAnalysisMetricDataExtensions` class diagram
@@ -1323,6 +1371,7 @@ class Command{
     +string? Description
     +string[]? Aliases
     +List<string> CustomAttributes
+    +List<Argument> Arguments
 }
 
 ```
