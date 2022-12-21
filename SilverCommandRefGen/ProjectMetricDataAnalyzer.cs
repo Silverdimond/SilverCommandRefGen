@@ -165,7 +165,7 @@ sealed class ProjectMetricDataAnalyzer
                                                 }
                                             }
                                             var parameters = syntaxGen.GetParameters(method);
-                                            foreach (var parameter in parameters)
+                                            foreach (var parameter in parameters.SkipWhile(x=>x is ParameterSyntax s && s.Type.ToString().EndsWith("Context")))
                                             {
                                                 var par = ((ParameterSyntax)parameter);
                                                 var arg = new Argument(par.Identifier.ToString(), par.Type.ToString());
@@ -175,7 +175,6 @@ sealed class ProjectMetricDataAnalyzer
                                                 void ProcessparamAttribute(AttributeSyntax attribute)
                                                 {
                                                     var attributearguments = syntaxGen.GetAttributeArguments(attribute);
-
                                                     string GetnthArg(int n)
                                                     {
                                                         return ((AttributeArgumentSyntax)

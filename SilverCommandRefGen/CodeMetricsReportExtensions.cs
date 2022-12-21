@@ -43,8 +43,10 @@ static class CodeMetricsReportExtensions
                 new MarkdownTextListItem($"{assemblyMetric.CountNamespaces():#,0} namespaces."),
                 new MarkdownTextListItem($"{assemblyMetric.CountNamedTypes():#,0} named types."),
                 new MarkdownTextListItem($"{assemblyMetric.SourceLines:#,0} total lines of source code."),
-                new MarkdownTextListItem($"Approximately {assemblyMetric.ExecutableLines:#,0} lines of executable code."),
-                new MarkdownTextListItem($"The highest cyclomatic complexity is {FormatComplexity(assemblyHighestComplexity)}."));
+                new MarkdownTextListItem(
+                    $"Approximately {assemblyMetric.ExecutableLines:#,0} lines of executable code."),
+                new MarkdownTextListItem(
+                    $"The highest cyclomatic complexity is {FormatComplexity(assemblyHighestComplexity)}."));
 
             foreach (var namespaceMetric
                      in assemblyMetric.Children.Where(child => child.Symbol.Kind == SymbolKind.Namespace)
@@ -61,8 +63,10 @@ static class CodeMetricsReportExtensions
                 document.AppendList(
                     new MarkdownTextListItem($"{namespaceMetric.CountNamedTypes():#,0} named types."),
                     new MarkdownTextListItem($"{namespaceMetric.SourceLines:#,0} total lines of source code."),
-                    new MarkdownTextListItem($"Approximately {namespaceMetric.ExecutableLines:#,0} lines of executable code."),
-                    new MarkdownTextListItem($"The highest cyclomatic complexity is {FormatComplexity(namespaceHighestComplexity)}."));
+                    new MarkdownTextListItem(
+                        $"Approximately {namespaceMetric.ExecutableLines:#,0} lines of executable code."),
+                    new MarkdownTextListItem(
+                        $"The highest cyclomatic complexity is {FormatComplexity(namespaceHighestComplexity)}."));
 
                 foreach (var classMetric in namespaceMetric.Children
                              .OrderBy(md => md.Symbol.Name))
@@ -72,10 +76,13 @@ static class CodeMetricsReportExtensions
                         document, classId, classSymbolName, namedTypeHighestComplexity.emoji);
 
                     document.AppendList(
-                        new MarkdownTextListItem($"The `{classSymbolName}` contains {classMetric.Children.Length} members."),
+                        new MarkdownTextListItem(
+                            $"The `{classSymbolName}` contains {classMetric.Children.Length} members."),
                         new MarkdownTextListItem($"{classMetric.SourceLines:#,0} total lines of source code."),
-                        new MarkdownTextListItem($"Approximately {classMetric.ExecutableLines:#,0} lines of executable code."),
-                        new MarkdownTextListItem($"The highest cyclomatic complexity is {FormatComplexity(namedTypeHighestComplexity)}."));
+                        new MarkdownTextListItem(
+                            $"Approximately {classMetric.ExecutableLines:#,0} lines of executable code."),
+                        new MarkdownTextListItem(
+                            $"The highest cyclomatic complexity is {FormatComplexity(namedTypeHighestComplexity)}."));
 
                     MarkdownTableHeader tableHeader = new(
                         new("Member kind", MarkdownTableTextAlignment.Center),
@@ -86,11 +93,7 @@ static class CodeMetricsReportExtensions
                         new("Class coupling", MarkdownTableTextAlignment.Center),
                         new("Lines of source / executable code", MarkdownTableTextAlignment.Center));
 
-                    List<MarkdownTableRow> rows = new();
-                    foreach (var memberMetric in classMetric.Children.OrderBy(md => md.Symbol.Name))
-                    {
-                        rows.Add(ToTableRowFrom(memberMetric, actionInputs));
-                    }
+                    var rows = classMetric.Children.OrderBy(md => md.Symbol.Name).Select(memberMetric => ToTableRowFrom(memberMetric, actionInputs)).ToList();
 
                     document.AppendTable(tableHeader, rows);
 
@@ -102,23 +105,17 @@ static class CodeMetricsReportExtensions
                         document.AppendParagraph(linkToClassDiagram);
                         classDiagrams.Add((id, classSymbolName, classMetric.ToMermaidClassDiagram(classSymbolName)));
                     }
-
                     document.AppendParagraph(namespaceLink); // Links back to the parent namespace in the MD doc
-
                     CloseCollapsibleSection(document);
                 }
-
                 CloseCollapsibleSection(document);
             }
-
             document.AppendParagraph(assemblyLink); // Links back to the parent assembly in the MD doc
         }
-
         AppendMetricDefinitions(document);
         AppendMermaidClassDiagrams(document, classDiagrams);
         AppendMaintainedByBotMessage(document);
         RestoreMarkdownLinter(document);
-
         return document.ToString();
     }
 
@@ -127,11 +124,8 @@ static class CodeMetricsReportExtensions
         ActionInputs actionInputs)
     {
         MarkdownDocument document = new();
-
         DisableMarkdownLinterAndCaptureConfig(document);
-
         document.AppendHeader("Commands and geeky info", 1);
-
         document.AppendParagraph(
             $"This file is dynamically maintained by a bot, ~~a silverbot~~. ");
         foreach (var (s, d) in metricData)
@@ -139,82 +133,103 @@ static class CodeMetricsReportExtensions
             document.AppendHeader(s, 2);
             foreach (var commandModule in d.CommandModules)
             {
-                document.AppendHeader(commandModule.Name, 3);
-                foreach (var command in commandModule.Commands.GroupBy(x=>x.Name))
+                var ghskip =
+                    $"github{(Environment.OSVersion.Platform == PlatformID.Win32NT ? "\\" : "/")}workspace";
+                var lastloc = commandModule.Name.LastIndexOf(
+                    ghskip, StringComparison.Ordinal);
+                if (lastloc == -1)
                 {
-                    document.AppendHeader((command.Key ?? "Unknown command name") ,4);
+                    lastloc = 0;
+                }
+                else
+                {
+                    lastloc += ghskip.Length;
+                }
+
+                document.AppendHeader(commandModule.Name[lastloc..].Replace("\\", "/"), 3);
+                foreach (var command in commandModule.Commands.GroupBy(x => x.Name))
+                {
+                    document.AppendHeader((command.Key ?? "Unknown command name"), 4);
                     document.AppendParagraph(command.First().Description ?? "Unknown description");
                     foreach (var cmd in command)
                     {
                         if (cmd.Aliases != null)
                         {
-                            document.AppendParagraph(string.Join(",", cmd.Aliases.Select(x=>$"`{x}`")));
+                            document.AppendParagraph(string.Join(",", cmd.Aliases.Select(x => $"`{x}`")));
                         }
 
-                        if (cmd.Arguments != null)
+                        document.AppendHeader("Arguments", 5);
+                        StringBuilder builder = new();
+                        builder.Append('`').Append(command.Key);
+                        foreach (var argument in cmd.Arguments)
                         {
-                            document.AppendHeader("Arguments", 5);
-                            StringBuilder builder = new();
-                            builder.Append('`').Append(command.Key);
-                            foreach (var argument in cmd.Arguments)
+                            builder.Append(' ');
+                            if (argument.Optional || argument.RemainingText)
                             {
-                                builder.Append(' ');
-                                if (argument.Optional || argument.RemainingText)
-                                {
-                                    builder.Append('[');
-                                }
-                                else
-                                {
-                                    builder.Append('<');
-                                }
-                                builder.Append(argument.Name);
-                                if (argument.RemainingText)
-                                {
-                                    builder.Append("...");
-                                }
-                                if (argument.Optional ||argument.RemainingText)
-                                {
-                                    builder.Append(']');
-                                }
-                                else
-                                {
-                                    builder.Append('>');
-                                }
-
+                                builder.Append('[');
                             }
+                            else
+                            {
+                                builder.Append('<');
+                            }
+
+                            builder.Append(argument.Name);
+                            if (argument.RemainingText)
+                            {
+                                builder.Append("...");
+                            }
+
+                            if (argument.Optional || argument.RemainingText)
+                            {
+                                builder.Append(']');
+                            }
+                            else
+                            {
+                                builder.Append('>');
+                            }
+
                             builder.Append("`");
                             document.AppendParagraph(builder.ToString());
-                            document.AppendList(cmd.Arguments.Select(argument => $"{argument.Name} - {argument.Description ?? "No description"} ({argument.Type})").ToArray());
+                            document.AppendList(cmd.Arguments.Select(argument =>
+                                    $"{argument.Name} - {argument.Description ?? "No description"} ({argument.Type})")
+                                .ToArray());
                         }
-                        document.AppendParagraph($"https://github.com/{actionInputs.Owner}/{actionInputs.Name}/blob/{actionInputs.Branch}{cmd.Location}");
+                        document.AppendParagraph(
+                            $"https://github.com/{actionInputs.Owner}/{actionInputs.Name}/blob/{actionInputs.Branch}{cmd.Location}");
                     }
-                   
                 }
             }
         }
         document.AppendCode("json", JsonSerializer.Serialize(metricData));
+        AppendMaintainedByBotMessage(document);
+        RestoreMarkdownLinter(document);
         return document.ToString();
     }
+
     static void AppendMetricDefinitions(MarkdownDocument document)
     {
         document.AppendHeader("Metric definitions", 2);
-
         MarkdownList markdownList = new();
-        foreach ((string columnHeader, string defintion)
+        foreach ((var columnHeader, var defintion)
                  in new[]
                  {
                      ("Maintainability index", "Measures ease of code maintenance. 🧽 ⬆ Higher values are better."),
                      ("Cyclomatic complexity", "Measures the number of branches. 🌱 ⬇️ Lower values are better."),
-                     ("Depth of inheritance", "Measures length of object inheritance hierarchy. 🇿 ⬇️ Lower values are better."),
-                     ("Class coupling", "Measures the number of classes that are referenced.🇨 🇨 ⬇️ Lower values are better."),
-                     ("Lines of source code", "Exact number of lines of source code. 🇱 🇴 🇨 ⬇️ Lower values are better."),
-                     ("Lines of executable code", "Approximates the lines of executable code. 🇱 🇴 🇪 🇨 ⬇️ Lower values are better.")
+                     ("Depth of inheritance",
+                         "Measures length of object inheritance hierarchy. 🇿 ⬇️ Lower values are better."),
+                     ("Class coupling",
+                         "Measures the number of classes that are referenced.🇨 🇨 ⬇️ Lower values are better."),
+                     ("Lines of source code",
+                         "Exact number of lines of source code. 🇱 🇴 🇨 ⬇️ Lower values are better."),
+                     ("Lines of executable code",
+                         "Approximates the lines of executable code. 🇱 🇴 🇪 🇨 ⬇️ Lower values are better.")
                  })
         {
             MarkdownText header = new($"**{columnHeader}**");
             MarkdownText text = new(defintion);
             markdownList.AddItem($"{header}: {text}");
         }
+
         document.AppendList(markdownList);
     }
 
@@ -258,8 +273,9 @@ static class CodeMetricsReportExtensions
             linesOfCode);
     }
 
-    static (string elementId, string displayName, string anchorLink, (int highestComplexity, string emoji)) ToIdAndAnchorPair(
-        CodeAnalysisMetricData metric)
+    static (string elementId, string displayName, string anchorLink, (int highestComplexity, string emoji))
+        ToIdAndAnchorPair(
+            CodeAnalysisMetricData metric)
     {
         var displayName = metric.ToDisplayName();
         var id = PrepareElementId(displayName);
@@ -319,7 +335,7 @@ static class CodeMetricsReportExtensions
                     .Replace("\\", "/");
             var lineNumberFileReference =
                 $"https://github.com/{actionInputs.Owner}/{actionInputs.Name}/blob/{actionInputs.Branch}/{relativePath}#L{lineNumber}";
-            
+
             // Must force anchor link, as GitHub assumes site-relative links.
             return $"<a href='{lineNumberFileReference}' title='{symbolDisplayName}'>{lineNumber:#,0}</a>";
         }
