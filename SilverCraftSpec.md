@@ -12,3 +12,7 @@ This file is dynamically maintained by a bot, ~~a silverbot~~.
 ```json
 {"/github/workspace/SilverCommandRefGen/SilverCommandRefGen.csproj":{"CommandModules":[]},"/github/workspace/DotNet.CodeAnalysis/DotNet.CodeAnalysis.csproj":{"CommandModules":[]}}
 ```
+
+***This file is maintained by a github action.***
+
+<!-- markdownlint-restore -->
